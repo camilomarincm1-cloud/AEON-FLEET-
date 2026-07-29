@@ -1,0 +1,57 @@
+@import url('https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Space Mono", monospace;
+  --font-serif: "Space Mono", monospace;
+  --font-mono: "Space Mono", monospace;
+
+  --color-ink: #000000;
+  --color-ink-light: #0A0A0C;
+  --color-ink-deep: #000000;
+  --color-gold: #F59E0B;
+  --color-gold-bright: #FBBF24;
+  --color-parchment: #FFFFFF;
+  --color-slate-dim: #9CA3AF;
+  --color-rust: #EF4444;
+  --color-rust-bright: #F87171;
+}
+
+body {
+  background-color: #000000;
+  color: #ffffff;
+  font-family: "Space Mono", monospace;
+  overflow-x: hidden;
+}
+
+html {
+  scroll-behavior: smooth;
+  background-color: #000000;
+}
+
+/* Custom scrollbars */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #000000;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(245, 158, 11, 0.3);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(245, 158, 11, 0.6);
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
