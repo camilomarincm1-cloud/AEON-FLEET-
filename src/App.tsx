@@ -21,7 +21,7 @@ export default function App() {
   }, [currentView]);
 
   return (
-    <div className="bg-[#000000] min-h-screen text-white font-mono selection:bg-amber-400/30 selection:text-amber-300 overflow-x-hidden">
+    <div className="bg-[#030508] min-h-screen text-white font-mono selection:bg-cyan-500/30 selection:text-cyan-300 overflow-x-hidden">
       {/* Tour Guide Overlay (for new visitors) */}
       <TourGuide />
 
@@ -36,8 +36,10 @@ export default function App() {
             <Hero setCurrentView={setCurrentView} />
 
             {/* SECTION 2: MOTOR FINANCIERO / COTIZADOR (ID: #despachar) */}
-            <section id="despachar" className="py-16 sm:py-24 bg-[#000000] border-t border-white/10 relative z-20">
-              <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
+            <section id="despachar" className="py-16 sm:py-24 bg-[#050810] bg-texture-cyan-grid border-t border-cyan-500/30 relative z-20 overflow-hidden">
+              {/* Background ambient lighting */}
+              <div className="absolute top-0 right-1/4 w-[500px] h-[500px] bg-cyan-500/10 blur-[160px] pointer-events-none" />
+              <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8 relative z-10">
                 <MultiStopCalculator />
               </div>
             </section>
@@ -58,16 +60,16 @@ export default function App() {
 
         {/* Subpage: Registro Directo de Despacho */}
         {currentView === 'order' && (
-          <div className="bg-[#000000] min-h-[80vh] py-12 font-mono">
+          <div className="bg-[#030508] bg-texture-grid min-h-[80vh] py-12 font-mono">
             <div className="max-w-6xl mx-auto px-4 sm:px-6 mb-8 text-center">
-              <span className="text-amber-400 font-mono text-xs uppercase tracking-widest block mb-2 font-bold">
-                SUBPÁGINA DE DESPACHO
+              <span className="text-cyan-400 font-mono text-xs uppercase tracking-widest block mb-2 font-bold">
+                FORMULARIO DIRECTO DE DESPACHO
               </span>
               <h1 className="text-3xl sm:text-5xl font-mono font-bold text-white mb-3">
-                Hoja de Registro de <span className="text-amber-400 italic font-normal">Despacho VIP</span>
+                Hoja de Registro de <span className="text-cyan-400 italic font-normal">Despacho VIP</span>
               </h1>
               <p className="text-sm text-slate-300 max-w-xl mx-auto">
-                Completa los datos de envío para agendar la recogida inmediata con nuestro courier VIP en Moto Boxer Negra.
+                Completa los datos de envío para agendar la recogida inmediata con nuestro mensajero VIP en Moto Boxer Negra.
               </p>
             </div>
             <OrderSheet />
@@ -76,28 +78,28 @@ export default function App() {
 
         {/* Subpage: Metodología Interactiva */}
         {currentView === 'methodology' && (
-          <div className="bg-[#000000] min-h-[70vh] py-12 font-mono">
+          <div className="bg-[#030508] bg-texture-violet-grid min-h-[70vh] py-12 font-mono">
             <MethodologySection />
           </div>
         )}
 
         {/* Subpage: Políticas y FAQ */}
         {currentView === 'policies' && (
-          <div className="bg-[#000000] min-h-[70vh] font-mono">
+          <div className="bg-[#030508] bg-texture-emerald-grid min-h-[70vh] font-mono">
             <FaqAndPolicies />
           </div>
         )}
 
         {/* Subpage: Testimonios */}
         {currentView === 'testimonials' && (
-          <div className="bg-[#000000] min-h-[70vh] py-12 font-mono">
+          <div className="bg-[#030508] bg-texture-cyan-grid min-h-[70vh] py-12 font-mono">
             <Testimonials />
           </div>
         )}
 
         {/* Subpage: Calculadora de Ahorro */}
         {currentView === 'calculator' && (
-          <div className="bg-[#000000] min-h-[70vh] py-12 font-mono">
+          <div className="bg-[#030508] bg-texture-grid min-h-[70vh] py-12 font-mono">
             <div className="max-w-6xl mx-auto px-4 sm:px-6">
               <div className="text-center mb-12">
                 <h2 className="text-3xl sm:text-4xl font-mono font-bold text-white mb-4">Calculadora de Ahorro</h2>

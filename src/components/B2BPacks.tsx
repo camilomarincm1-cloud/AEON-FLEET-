@@ -179,31 +179,61 @@ const PACKS_DATA: PackItem[] = [
 function PackRichCard({ pack, index }: { pack: PackItem; index: number }) {
   const [isOpen, setIsOpen] = useState(false);
 
+  // Distinct Neon Themes per Pack
+  const isCorporate = pack.id === "corporate";
+  const isEnterprise = pack.id === "enterprise";
+
+  const theme = isCorporate
+    ? {
+        border: "border-cyan-400 shadow-[0_0_50px_rgba(6,182,212,0.3)] bg-gradient-to-b from-cyan-500/15 via-[#0A0E17] to-[#000000]",
+        badgeBg: "bg-cyan-400 text-black border-cyan-400 font-extrabold shadow-[0_0_15px_rgba(6,182,212,0.4)]",
+        priceColor: "text-cyan-300 font-black",
+        titleHighlight: "text-cyan-400",
+        iconBg: "bg-cyan-400/15 text-cyan-300 border-cyan-400/30",
+        checkColor: "text-cyan-400",
+        accordionText: "text-cyan-300 hover:text-cyan-200",
+        btnGradient: "bg-gradient-to-r from-cyan-400 to-sky-400 hover:from-cyan-300 hover:to-sky-300 text-black shadow-cyan-400/25",
+        glowBg: "bg-cyan-400/15",
+      }
+    : isEnterprise
+    ? {
+        border: "border-violet-400/40 hover:border-violet-400/90 shadow-[0_0_35px_rgba(168,85,247,0.18)] bg-gradient-to-b from-violet-500/10 via-[#0E0A17] to-[#000000]",
+        badgeBg: "text-violet-300 bg-violet-500/15 border-violet-400/40 font-bold",
+        priceColor: "text-violet-300 font-black",
+        titleHighlight: "text-violet-400",
+        iconBg: "bg-violet-400/15 text-violet-300 border-violet-400/30",
+        checkColor: "text-violet-400",
+        accordionText: "text-violet-300 hover:text-violet-200",
+        btnGradient: "bg-gradient-to-r from-violet-400 to-fuchsia-400 hover:from-violet-300 hover:to-fuchsia-300 text-black shadow-violet-400/25",
+        glowBg: "bg-violet-400/15",
+      }
+    : {
+        border: "border-amber-400/40 hover:border-amber-400/90 shadow-[0_0_35px_rgba(245,158,11,0.18)] bg-gradient-to-b from-amber-500/10 via-[#14100A] to-[#000000]",
+        badgeBg: "text-amber-400 bg-amber-400/10 border-amber-400/30 font-bold",
+        priceColor: "text-amber-400 font-black",
+        titleHighlight: "text-amber-400",
+        iconBg: "bg-amber-400/15 text-amber-300 border-amber-400/30",
+        checkColor: "text-amber-400",
+        accordionText: "text-amber-400 hover:text-amber-300",
+        btnGradient: "bg-gradient-to-r from-amber-400 to-yellow-400 hover:from-amber-300 hover:to-yellow-300 text-black shadow-amber-400/25",
+        glowBg: "bg-amber-400/15",
+      };
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 30 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
       transition={{ duration: 0.5, delay: index * 0.12 }}
-      className={`relative overflow-hidden bg-[#0A0A0C] border rounded-2xl p-6 sm:p-7 flex flex-col justify-between h-full transition-all duration-300 ${
-        pack.popular
-          ? "border-amber-400 shadow-[0_0_50px_rgba(245,158,11,0.2)] bg-gradient-to-b from-amber-400/10 via-[#0A0A0C] to-[#000000]"
-          : "border-amber-400/30 hover:border-amber-400/80 shadow-[0_0_30px_rgba(0,0,0,0.8)]"
-      }`}
+      className={`relative overflow-hidden border rounded-2xl p-6 sm:p-7 flex flex-col justify-between h-full transition-all duration-300 ${theme.border}`}
     >
       {/* Glow corner accent */}
-      <div className="absolute -top-16 -right-16 w-32 h-32 bg-amber-400/10 rounded-full blur-2xl pointer-events-none" />
+      <div className={`absolute -top-16 -right-16 w-32 h-32 ${theme.glowBg} rounded-full blur-2xl pointer-events-none`} />
 
       <div>
         {/* Top Header Badge */}
         <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
-          <span
-            className={`text-[10px] sm:text-xs font-bold uppercase tracking-widest px-3 py-1 rounded-full border ${
-              pack.popular
-                ? "bg-amber-400 text-black border-amber-400 font-extrabold"
-                : "text-amber-400 bg-amber-400/10 border-amber-400/30"
-            }`}
-          >
+          <span className={`text-[10px] sm:text-xs uppercase tracking-widest px-3 py-1 rounded-full border ${theme.badgeBg}`}>
             {pack.badge}
           </span>
           <span className="text-[11px] font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/30 px-2.5 py-0.5 rounded">
@@ -215,14 +245,14 @@ function PackRichCard({ pack, index }: { pack: PackItem; index: number }) {
         <div className="mb-6">
           <h3 className="text-2xl font-extrabold text-white tracking-tight mb-2">
             {pack.title}
-            <span className="text-amber-400">{pack.titleHighlight}</span>
+            <span className={theme.titleHighlight}>{pack.titleHighlight}</span>
           </h3>
-          <p className="text-xs text-slate-300 leading-relaxed mb-4">
+          <p className="text-xs text-slate-300 leading-relaxed mb-4 font-mono">
             {pack.description}
           </p>
 
           <div className="flex items-baseline gap-2 pt-2 border-t border-white/10">
-            <span className="text-3xl sm:text-4xl font-black text-amber-400 tracking-tight">
+            <span className={`text-3xl sm:text-4xl tracking-tight ${theme.priceColor}`}>
               {pack.totalPrice}
             </span>
             <span className="text-xs text-slate-400 font-bold">
@@ -238,12 +268,12 @@ function PackRichCard({ pack, index }: { pack: PackItem; index: number }) {
               key={i}
               className="flex items-center gap-2 bg-white/5 border border-white/10 rounded-xl p-2"
             >
-              <div className="p-1 rounded-lg bg-amber-400/10 text-amber-400 shrink-0">
+              <div className={`p-1 rounded-lg ${theme.iconBg} shrink-0`}>
                 {mb.icon === "gps" && <MapPin size={14} />}
                 {mb.icon === "zap" && <Zap size={14} />}
                 {mb.icon === "shield" && <ShieldCheck size={14} />}
               </div>
-              <span className="text-[10px] font-bold text-slate-200 leading-tight">
+              <span className="text-[10px] font-bold text-slate-200 leading-tight font-mono">
                 {mb.text}
               </span>
             </div>
@@ -251,23 +281,23 @@ function PackRichCard({ pack, index }: { pack: PackItem; index: number }) {
         </div>
 
         {/* Key Included Features list */}
-        <ul className="space-y-2 mb-6 text-xs text-slate-300">
+        <ul className="space-y-2 mb-6 text-xs text-slate-300 font-mono">
           {pack.keyFeatures.map((feat, idx) => (
             <li key={idx} className="flex items-center gap-2">
-              <CheckCircle2 size={14} className="text-amber-400 shrink-0" />
+              <CheckCircle2 size={14} className={`${theme.checkColor} shrink-0`} />
               <span>{feat}</span>
             </li>
           ))}
         </ul>
 
         {/* Accordion / Collapsible for Policies and Excess */}
-        <div className="border border-white/15 rounded-xl bg-[#12141A] overflow-hidden mb-6">
+        <div className="border border-white/15 rounded-xl bg-[#0B0E14] overflow-hidden mb-6">
           <button
             onClick={() => setIsOpen(!isOpen)}
-            className="w-full p-3.5 px-4 flex items-center justify-between text-left text-xs font-bold text-amber-400 hover:bg-white/5 transition-colors cursor-pointer"
+            className={`w-full p-3.5 px-4 flex items-center justify-between text-left text-xs font-bold ${theme.accordionText} hover:bg-white/5 transition-colors cursor-pointer`}
           >
             <div className="flex items-center gap-2">
-              <Compass size={15} className="text-amber-400" />
+              <Compass size={15} />
               <span>Ver políticas de cobertura y excedentes</span>
             </div>
             <motion.div
@@ -285,28 +315,28 @@ function PackRichCard({ pack, index }: { pack: PackItem; index: number }) {
                 animate={{ opacity: 1, height: "auto" }}
                 exit={{ opacity: 0, height: 0 }}
                 transition={{ duration: 0.3 }}
-                className="border-t border-white/10 p-4 space-y-3 text-xs text-slate-300 bg-[#0E1015]"
+                className="border-t border-white/10 p-4 space-y-3 text-xs text-slate-300 bg-[#080B10]"
               >
                 {pack.rules.map((rule, idx) => (
                   <div key={idx} className="flex items-start gap-2">
-                    <span className="text-amber-400 font-bold shrink-0 mt-0.5">
+                    <span className={`${theme.checkColor} font-bold shrink-0 mt-0.5`}>
                       ●
                     </span>
                     <div>
                       <strong className="text-white block font-bold mb-0.5">
                         {rule.title}
                       </strong>
-                      <p className="text-slate-400 text-[11px] leading-relaxed">
+                      <p className="text-slate-400 text-[11px] leading-relaxed font-mono">
                         {rule.description}
                       </p>
                     </div>
                   </div>
                 ))}
 
-                <div className="pt-2 border-t border-white/10 flex items-center gap-2 text-[10px] text-amber-300/90 italic">
+                <div className="pt-2 border-t border-white/10 flex items-center gap-2 text-[10px] text-slate-300 italic">
                   <AlertTriangle
                     size={12}
-                    className="shrink-0 text-amber-400"
+                    className={`shrink-0 ${theme.checkColor}`}
                   />
                   <span>
                     Vigencia del pack: 30 días calendario contados desde el
@@ -327,7 +357,7 @@ function PackRichCard({ pack, index }: { pack: PackItem; index: number }) {
           )}`}
           target="_blank"
           rel="noopener noreferrer"
-          className="w-full py-3.5 px-5 rounded-xl font-bold text-xs sm:text-sm uppercase tracking-wider bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 text-black shadow-lg shadow-amber-400/20 flex items-center justify-center gap-2.5 transition-all transform hover:scale-[1.01] cursor-pointer min-h-[48px]"
+          className={`w-full py-3.5 px-5 rounded-xl font-bold text-xs sm:text-sm uppercase tracking-wider ${theme.btnGradient} shadow-lg flex items-center justify-center gap-2.5 transition-all transform hover:scale-[1.01] cursor-pointer min-h-[48px]`}
         >
           <Send size={16} />
           <span>{pack.ctaText}</span>
@@ -335,10 +365,9 @@ function PackRichCard({ pack, index }: { pack: PackItem; index: number }) {
 
         {/* Micro-Note below CTA */}
         <div className="flex items-center justify-center gap-1.5 text-center text-[10px] text-slate-400 pt-1">
-          <HelpCircle size={12} className="text-amber-400 shrink-0" />
+          <HelpCircle size={12} className={`${theme.checkColor} shrink-0`} />
           <span>
-            ¿Dudas con la distancia de tu dirección habitual? Validamos tu ruta
-            en 10 segundos por WhatsApp.
+            ¿Dudas con la distancia de tu dirección? Te asesoramos en 10 segundos por WhatsApp.
           </span>
         </div>
       </div>

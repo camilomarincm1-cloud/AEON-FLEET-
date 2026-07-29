@@ -27,8 +27,11 @@ export default function Testimonials() {
   ];
 
   return (
-    <section id="testimonios" className="py-20 sm:py-28 bg-[#000000] border-b border-white/10 relative font-mono">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 md:px-8">
+    <section id="testimonios" className="py-20 sm:py-28 bg-[#04060A] bg-texture-cyan-grid border-b border-cyan-500/20 relative font-mono overflow-hidden">
+      {/* Background cyan neon glow */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-cyan-500/5 blur-[160px] pointer-events-none" />
+
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 md:px-8 relative z-10">
         
         {/* Header */}
         <motion.div
@@ -37,12 +40,12 @@ export default function Testimonials() {
           viewport={{ once: true }}
           className="text-center max-w-3xl mx-auto mb-16"
         >
-          <span className="inline-block font-mono text-[10px] sm:text-xs text-amber-400 uppercase tracking-widest mb-3 px-3.5 py-1 border border-amber-400/30 rounded-full bg-amber-400/10 font-bold">
-            AUTORIDAD OPERATIVA • VALIDACIÓN B2B
+          <span className="inline-block font-mono text-[10px] sm:text-xs text-cyan-300 uppercase tracking-widest mb-3 px-3.5 py-1.5 border border-cyan-500/30 rounded-full bg-cyan-500/10 font-bold shadow-[0_0_15px_rgba(6,182,212,0.2)]">
+            AUTORIDAD OPERATIVA • HISTORIAS DE ÉXITO B2B
           </span>
           <h2 className="font-mono text-3xl sm:text-5xl font-bold text-white leading-tight mb-4">
             Respaldado por el <br className="hidden sm:inline" />
-            <span className="text-amber-400 italic font-normal">comercio local.</span>
+            <span className="text-cyan-400 italic font-normal">comercio e-commerce local.</span>
           </h2>
           <p className="text-slate-300 text-sm sm:text-base leading-relaxed">
             Las empresas más exigentes del Valle de Aburrá delegan su cadena de custodia en la flota de Boxer Negra de ÆON Fleet.
@@ -58,19 +61,19 @@ export default function Testimonials() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: idx * 0.12 }}
-              className="bg-[#0A0A0C] border border-white/15 rounded-2xl p-6 sm:p-8 flex flex-col justify-between hover:border-amber-400/40 transition-all shadow-2xl relative group"
+              className="bg-[#080D16] border border-cyan-500/30 rounded-2xl p-6 sm:p-8 flex flex-col justify-between hover:border-cyan-400 transition-all duration-300 shadow-[0_0_25px_rgba(6,182,212,0.1)] relative group hover:-translate-y-1"
             >
               {/* Terminal Window Header */}
               <div>
-                <div className="flex items-center justify-between pb-4 mb-6 border-b border-white/10">
+                <div className="flex items-center justify-between pb-4 mb-6 border-b border-cyan-500/20">
                   <div className="flex items-center gap-2">
                     <span className="w-2.5 h-2.5 rounded-full bg-red-500/80 inline-block" />
                     <span className="w-2.5 h-2.5 rounded-full bg-amber-500/80 inline-block" />
                     <span className="w-2.5 h-2.5 rounded-full bg-emerald-500/80 inline-block" />
                   </div>
-                  <div className="flex items-center gap-1.5 text-[10px] font-mono text-slate-400">
-                    <Terminal size={12} className="text-amber-400" />
-                    <span>aeon_log.sys</span>
+                  <div className="flex items-center gap-1.5 text-[10px] font-mono text-cyan-300">
+                    <Terminal size={12} className="text-cyan-400" />
+                    <span>aeon_verify.log</span>
                   </div>
                 </div>
 
@@ -81,7 +84,7 @@ export default function Testimonials() {
 
               <div>
                 <div className="mb-4">
-                  <span className="text-xs font-mono font-bold text-amber-400 bg-amber-400/10 border border-amber-400/20 px-2.5 py-1 rounded inline-block">
+                  <span className="text-xs font-mono font-bold text-cyan-300 bg-cyan-500/10 border border-cyan-500/30 px-2.5 py-1 rounded inline-block shadow-[0_0_10px_rgba(6,182,212,0.15)]">
                     {item.metric}
                   </span>
                 </div>

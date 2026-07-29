@@ -753,41 +753,44 @@ ${extraStopsText ? `📦 *3. PARADAS INTERMEDIAS:\n${extraStopsText}\n\n` : ""}�
   };
 
   return (
-    <div className="max-w-4xl mx-auto bg-[#0A0A0C] border border-white/10 rounded-2xl p-5 sm:p-8 md:p-10 shadow-2xl relative overflow-hidden text-white font-mono backdrop-blur-xl">
-      {/* Background ambient light */}
-      <div className="absolute top-0 right-0 w-80 h-80 bg-amber-400/10 blur-[120px] pointer-events-none" />
-      <div className="absolute bottom-0 left-0 w-80 h-80 bg-emerald-500/10 blur-[120px] pointer-events-none" />
+    <div className="max-w-4xl mx-auto bg-[#080B10] border border-cyan-500/30 rounded-2xl p-5 sm:p-8 md:p-10 shadow-[0_0_60px_rgba(6,182,212,0.12)] relative overflow-hidden text-white font-mono backdrop-blur-xl">
+      {/* Background neon ambient lights */}
+      <div className="absolute top-0 right-0 w-80 h-80 bg-cyan-500/10 blur-[130px] pointer-events-none" />
+      <div className="absolute bottom-0 left-0 w-80 h-80 bg-emerald-500/10 blur-[130px] pointer-events-none" />
 
-      {/* Header Badge */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-6 border-b border-white/10 mb-8 gap-4">
+      {/* Header Badge & Title */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-6 border-b border-cyan-500/20 mb-8 gap-4">
         <div>
-          <span className="inline-flex items-center gap-2 font-mono text-[11px] font-bold tracking-wider text-emerald-400 uppercase bg-emerald-500/10 border border-emerald-500/30 px-3.5 py-1 rounded-full mb-2.5">
+          <span className="inline-flex items-center gap-2 font-mono text-[11px] font-bold tracking-wider text-cyan-300 uppercase bg-cyan-500/10 border border-cyan-500/30 px-3.5 py-1 rounded-full mb-2.5 shadow-[0_0_15px_rgba(6,182,212,0.2)]">
             <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-cyan-400"></span>
             </span>
-            VALLE DE ABURRÁ • MEDELLÍN & METRO
+            MOTOR DE COTIZACIÓN EN TIEMPO REAL • VALLE DE ABURRÁ
           </span>
           <h3 className="font-mono text-2xl sm:text-3xl font-bold text-white">
-            Cotizador & Hoja de Despacho VIP
+            Calculadora de Envíos & Cotización GPS
           </h3>
+          <p className="text-xs text-slate-300 mt-1 max-w-xl leading-relaxed">
+            Obtén el precio exacto de tu domicilio con cálculo de distancia real vía Google Maps. Sin tarifas dinámicas por lluvia o tráfico.
+          </p>
         </div>
 
         <div>
-          <span className="text-xs font-mono text-amber-400 bg-amber-400/10 border border-amber-400/30 px-3.5 py-2 rounded-xl font-bold uppercase tracking-wider block">
-            $12.000 Base (2KM) + $1.800/KM
+          <span className="text-xs font-mono text-cyan-300 bg-cyan-500/10 border border-cyan-500/40 px-3.5 py-2 rounded-xl font-bold uppercase tracking-wider block shadow-[0_0_15px_rgba(6,182,212,0.15)] text-center">
+            $12.000 Base (2 KM) + $1.800/KM
           </span>
         </div>
       </div>
 
-      {/* TAB SELECTOR: Quick Mode vs Full Operational Mode */}
-      <div className="flex bg-[#12141A] p-1.5 rounded-xl border border-white/10 mb-6 max-w-md mx-auto">
+      {/* TAB SELECTOR: Cotizador vs Guía Completa */}
+      <div className="flex bg-[#0E131F] p-1.5 rounded-xl border border-cyan-500/30 mb-6 max-w-md mx-auto shadow-inner">
         <button
           type="button"
           onClick={() => setActiveTab("quick")}
           className={`flex-1 py-2.5 px-3 text-xs font-mono font-bold rounded-lg transition-all flex items-center justify-center gap-2 cursor-pointer ${
             activeTab === "quick"
-              ? "bg-amber-400 text-black shadow-lg"
+              ? "bg-cyan-400 text-black shadow-[0_0_20px_rgba(6,182,212,0.4)]"
               : "text-slate-400 hover:text-white"
           }`}
         >
@@ -799,7 +802,7 @@ ${extraStopsText ? `📦 *3. PARADAS INTERMEDIAS:\n${extraStopsText}\n\n` : ""}�
           onClick={() => setActiveTab("full")}
           className={`flex-1 py-2.5 px-3 text-xs font-mono font-bold rounded-lg transition-all flex items-center justify-center gap-2 cursor-pointer ${
             activeTab === "full"
-              ? "bg-amber-400 text-black shadow-lg"
+              ? "bg-cyan-400 text-black shadow-[0_0_20px_rgba(6,182,212,0.4)]"
               : "text-slate-400 hover:text-white"
           }`}
         >
@@ -808,73 +811,73 @@ ${extraStopsText ? `📦 *3. PARADAS INTERMEDIAS:\n${extraStopsText}\n\n` : ""}�
         </button>
       </div>
 
-      {/* ⏱️ HORARIO Y VENTANAS OPERATIVAS DE LA FLOTA (10:00 AM - 08:00 PM) */}
-      <div className="bg-[#0A0A0C] border border-amber-500/30 rounded-2xl p-5 sm:p-6 mb-8 backdrop-blur-md relative overflow-hidden shadow-xl">
-        <div className="flex items-center justify-between border-b border-white/10 pb-3 mb-4">
+      {/* ⏱️ HORARIOS Y GARANTÍA DE TIEMPO */}
+      <div className="bg-[#0A0D14] border border-cyan-500/30 rounded-2xl p-5 sm:p-6 mb-8 backdrop-blur-md relative overflow-hidden shadow-xl">
+        <div className="flex items-center justify-between border-b border-cyan-500/20 pb-3 mb-4">
           <div className="flex items-center gap-2.5">
-            <Clock size={18} className="text-amber-400 shrink-0 animate-pulse" />
+            <Clock size={18} className="text-cyan-400 shrink-0 animate-pulse" />
             <h4 className="text-xs sm:text-sm font-mono font-bold uppercase tracking-wider text-white">
-              Horario y Ventanas Operativas de la Flota
+              Horario de Operación & Tiempos Garantizados
             </h4>
           </div>
           <span className="text-[10px] font-mono text-emerald-400 bg-emerald-500/10 border border-emerald-500/30 px-2.5 py-1 rounded-full font-bold uppercase">
-            🟢 OPERATIVO AHORA
+            🟢 FLOTA DISPONIBLE HOY
           </span>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {/* Item 1: Horario Oficial */}
-          <div className="bg-[#12141A] border border-white/10 rounded-xl p-3.5 space-y-1">
-            <span className="text-[10px] font-mono font-bold uppercase text-amber-400 block">
-              ⏱️ Jornada Oficial de Operaciones
+          {/* Item 1: Horario */}
+          <div className="bg-[#101622] border border-white/10 rounded-xl p-3.5 space-y-1">
+            <span className="text-[10px] font-mono font-bold uppercase text-cyan-300 block">
+              ⏱️ Horario Continuo
             </span>
             <p className="text-xs font-mono text-white font-bold">
               10:00 AM a 08:00 PM
             </p>
             <p className="text-[11px] font-mono text-slate-400">
-              Lunes a Sábado en Valle de Aburrá. Ninguna operación inicia antes de las 10:00 AM.
+              Lunes a Sábado. Atención ágil en Medellín, Envigado, Sabaneta, Itagüí y Bello.
             </p>
           </div>
 
-          {/* Item 2: Regla de Corte SLA */}
-          <div className="bg-[#12141A] border border-white/10 rounded-xl p-3.5 space-y-1">
-            <span className="text-[10px] font-mono font-bold uppercase text-amber-400 block">
-              📅 Regla de Corte SLA (02:00 PM)
+          {/* Item 2: Regla de Entrega Mismo Día */}
+          <div className="bg-[#101622] border border-white/10 rounded-xl p-3.5 space-y-1">
+            <span className="text-[10px] font-mono font-bold uppercase text-cyan-300 block">
+              📅 Corte de Entrega
             </span>
             <p className="text-xs font-mono text-slate-200">
-              • <strong className="text-white">&lt; 02:00 PM:</strong> Despacho y entrega <strong className="text-amber-400">mismo día</strong>.
+              • <strong className="text-white">Antes de 02:00 PM:</strong> Entrega el <strong className="text-cyan-300">mismo día</strong>.
             </p>
             <p className="text-xs font-mono text-slate-200">
-              • <strong className="text-white">&gt; 02:00 PM:</strong> Programado para <strong className="text-slate-300">mañana AM (10:00 AM)</strong>.
+              • <strong className="text-white">Después de 02:00 PM:</strong> Se entrega <strong className="text-slate-300">mañana AM</strong>.
             </p>
           </div>
 
           {/* Item 3: Excepción VIP Corporate */}
-          <div className="bg-gradient-to-r from-amber-400/10 via-emerald-500/15 to-emerald-500/10 border border-emerald-500/40 rounded-xl p-3.5 space-y-1">
+          <div className="bg-gradient-to-r from-cyan-500/10 via-emerald-500/15 to-emerald-500/10 border border-emerald-500/40 rounded-xl p-3.5 space-y-1">
             <div className="flex items-center gap-1.5">
               <Zap size={14} className="text-emerald-400 shrink-0" />
               <span className="text-[10px] font-mono font-bold uppercase text-emerald-400">
-                🚀 Excepción VIP Pack Corporate
+                🚀 Despacho VIP Expreso
               </span>
             </div>
             <p className="text-xs font-mono text-white font-bold">
-              Atención Inmediata (&lt; 45 min)
+              Asignación en menos de 45 Min
             </p>
             <p className="text-[11px] font-mono text-slate-300">
-              Exclusiva de 11:00 AM a 05:00 PM. Fuera de franja aplica regla general de rutas.
+              Prioridad de asignación para clientes Pack Corporate (11 AM - 5 PM).
             </p>
           </div>
         </div>
       </div>
 
       {/* 🚀 ATAJOS RÁPIDOS DE COTIZACIÓN EN 1 CLIC */}
-      <div className="bg-[#12141A] border border-amber-400/30 rounded-2xl p-4 mb-6 shadow-lg">
+      <div className="bg-[#0E131F] border border-cyan-500/30 rounded-2xl p-4 mb-6 shadow-lg">
         <div className="flex items-center justify-between mb-2.5">
-          <span className="text-xs font-mono font-bold uppercase text-amber-400 flex items-center gap-1.5">
+          <span className="text-xs font-mono font-bold uppercase text-cyan-300 flex items-center gap-1.5">
             <Zap size={15} />
-            <span>Rutas Frecuentes: Cotización Express en 1 Clic</span>
+            <span>Rutas Más Solicitadas (Cotiza en 1 Clic):</span>
           </span>
-          <span className="text-[10px] font-mono text-slate-400">Nodos Clave Aburrá</span>
+          <span className="text-[10px] font-mono text-slate-400">Valle de Aburrá</span>
         </div>
         <div className="flex flex-wrap gap-2">
           {PRESET_ROUTES.map((route) => {
@@ -889,8 +892,8 @@ ${extraStopsText ? `📦 *3. PARADAS INTERMEDIAS:\n${extraStopsText}\n\n` : ""}�
                 }}
                 className={`px-3 py-1.5 text-xs font-mono font-bold rounded-xl border transition-all cursor-pointer flex items-center gap-1.5 ${
                   isActive
-                    ? "bg-amber-400 text-black border-amber-400 shadow-md scale-[1.02]"
-                    : "bg-[#0A0A0C] text-slate-300 border-white/10 hover:border-amber-400/50 hover:text-white"
+                    ? "bg-cyan-400 text-black border-cyan-400 shadow-[0_0_15px_rgba(6,182,212,0.4)] scale-[1.02]"
+                    : "bg-[#080B10] text-slate-300 border-white/10 hover:border-cyan-400/50 hover:text-white"
                 }`}
               >
                 <span>⚡ {route.label}</span>

@@ -18,7 +18,7 @@
 }
 
 body {
-  background-color: #000000;
+  background-color: #030508;
   color: #ffffff;
   font-family: "Space Mono", monospace;
   overflow-x: hidden;
@@ -26,7 +26,47 @@ body {
 
 html {
   scroll-behavior: smooth;
-  background-color: #000000;
+  background-color: #030508;
+}
+
+/* Background Textures for Dark Theme Depth */
+.bg-texture-dots {
+  background-image: radial-gradient(rgba(255, 255, 255, 0.08) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+.bg-texture-grid {
+  background-image: 
+    linear-gradient(to right, rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+
+.bg-texture-cyan-grid {
+  background-image: 
+    linear-gradient(to right, rgba(6, 182, 212, 0.06) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(6, 182, 212, 0.06) 1px, transparent 1px);
+  background-size: 36px 36px;
+}
+
+.bg-texture-violet-grid {
+  background-image: 
+    linear-gradient(to right, rgba(168, 85, 247, 0.06) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(168, 85, 247, 0.06) 1px, transparent 1px);
+  background-size: 36px 36px;
+}
+
+.bg-texture-emerald-grid {
+  background-image: 
+    linear-gradient(to right, rgba(16, 185, 129, 0.06) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(16, 185, 129, 0.06) 1px, transparent 1px);
+  background-size: 36px 36px;
+}
+
+.bg-texture-mesh {
+  background-image: 
+    radial-gradient(ellipse at 50% 0%, rgba(6, 182, 212, 0.1) 0%, transparent 70%),
+    repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.015) 0, rgba(255, 255, 255, 0.015) 1px, transparent 0, transparent 24px);
 }
 
 /* Custom scrollbars */
@@ -36,16 +76,16 @@ html {
 }
 
 ::-webkit-scrollbar-track {
-  background: #000000;
+  background: #030508;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(245, 158, 11, 0.3);
+  background: rgba(6, 182, 212, 0.4);
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(245, 158, 11, 0.6);
+  background: rgba(6, 182, 212, 0.7);
 }
 
 .no-scrollbar::-webkit-scrollbar {
