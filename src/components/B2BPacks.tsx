@@ -34,14 +34,14 @@ interface PackItem {
 
 const PACKS_DATA: PackItem[] = [
   {
-    id: "emprendedor",
+    id: "local3k",
     badge: "E-COMMERCE LOCAL • PACK 10 ENVÍOS",
-    unitPrice: "$14.000 COP / envío",
-    title: "Pack Express Local ",
+    unitPrice: "$7.000 COP / envío",
+    title: "Pack Local 3K ",
     titleHighlight: "(10 Envíos)",
     description:
-      "Solución logística optimizada para tiendas y negocios locales. Congela tu tarifa, asegura cero sorpresas por clima o tráfico y entrega con precisión GPS.",
-    totalPrice: "$140.000",
+      "Solución logística optimizada para tiendas y comercios de cercanía. 10 envíos prepagados para rutas de hasta 3 km.",
+    totalPrice: "$70.000",
     unitLabel: "COP / Total (10 Cupones)",
     popular: false,
     microBadges: [
@@ -51,14 +51,14 @@ const PACKS_DATA: PackItem[] = [
     ],
     keyFeatures: [
       "10 Envíos prepagados para rutas en Valle de Aburrá",
-      "Cobertura base incluida: Hasta 6,0 KM por trayecto",
+      "Cobertura base incluida: Hasta 3,0 KM por trayecto",
       "Vigencia estricta de 30 días calendario (sin prórrogas)",
     ],
     rules: [
       {
-        title: "Cobertura Base (Hasta 6,0 KM):",
+        title: "Cobertura Base (Hasta 3,0 KM):",
         description:
-          "Cubre trayectos de hasta 6,0 km lineales/ruta (origen a destino) medidos con precisión vía GPS / Google Maps. Aplica para Itagüí, Sabaneta, Envigado (zona urbana) y Guayabal.",
+          "Cubre trayectos de hasta 3,0 km lineales/ruta (origen a destino) medidos con precisión vía GPS / Google Maps.",
       },
       {
         title: "Regla del Punto Cero:",
@@ -68,75 +68,70 @@ const PACKS_DATA: PackItem[] = [
       {
         title: "Cláusula de Excedente ($1.500 COP / KM extra):",
         description:
-          "Si una entrega supera los 6,0 km (ej. Laureles, Centro, Poblado Alto), ¡no pierdes el cupón! Se descuenta el servicio del pack y solo se liquida un recargo automático de $1.500 COP por kilómetro adicional sobre la ruta.",
+          "Si una entrega supera los 3,0 km, ¡no pierdes el cupón! Se descuenta el servicio del pack y solo se liquida un recargo automático de $1.500 COP por kilómetro adicional sobre la ruta.",
       },
       {
         title: "Exclusión de Montaña & Zonas Especiales:",
         description:
-          "Los 6 km aplican sobre vías urbanas principales. Rutas hacia áreas rurales, veredas o la parte alta de San Antonio de Prado se cotizan con tarifa especial por desgaste operativo del vehículo.",
+          "Los 3 km aplican sobre vías urbanas principales. Rutas hacia áreas rurales o veredas se cotizan con tarifa especial por desgaste operativo.",
       },
     ],
-    ctaText: "Adquirir Pack Local 6K",
+    ctaText: "Adquirir Pack Local 3K",
     whatsappMsg:
-      "Hola ÆON Fleet, quiero adquirir el Pack Express Local 6K ($140.000 COP por 10 envíos de hasta 6km). Deseo validar la distancia de mi dirección habitual e iniciar mi activación.",
+      "Hola ÆON Fleet, quiero adquirir el Pack Local 3K ($70.000 COP por 10 envíos de hasta 3km). Deseo validar la distancia de mi dirección habitual e iniciar mi activación.",
   },
   {
-    id: "corporate",
-    badge: "MÁS VENDIDO B2B • PACK 25 ENVÍOS",
-    unitPrice: "$12.400 COP / envío",
-    title: "Pack Corporate VIP ",
-    titleHighlight: "(25 Envíos)",
+    id: "express6k",
+    badge: "MÁS POPULAR B2B • PACK 10 ENVÍOS",
+    unitPrice: "$10.000 COP / envío",
+    title: "Pack Express 6K ",
+    titleHighlight: "(10 Envíos)",
     description:
-      "Diseñado para marcas y comercios de alto flujo. Incluye franja interzonal y ventana de asignación VIP prioritaria en menos de 45 minutos.",
-    totalPrice: "$310.000",
-    unitLabel: "COP / Total (25 Cupones)",
+      "Diseñado para comercios con rutas medianas. Cobertura de hasta 6 km por trayecto con la mejor relación costo-beneficio.",
+    totalPrice: "$100.000",
+    unitLabel: "COP / Total (10 Cupones)",
     popular: true,
     microBadges: [
       { icon: "gps", text: "📍 Medición GPS Exacta" },
-      { icon: "zap", text: "⚡ Ventana VIP <45 Min" },
+      { icon: "zap", text: "⚡ Ventana Prioritaria" },
       { icon: "shield", text: "🛡️ Cadena de Custodia" },
     ],
     keyFeatures: [
-      "25 Envíos prepagados a $12.400 COP por trayecto",
-      "Cobertura incluida: Hasta 11,0 KM (Eje comercial principal)",
-      "Excepción VIP: Asignación e inicio en <45 min (11 AM - 5 PM)",
+      "10 Envíos prepagados a $10.000 COP por trayecto",
+      "Cobertura incluida: Hasta 6,0 KM (Eje comercial principal)",
+      "Asignación e inicio prioritario",
     ],
     rules: [
       {
-        title: "Cobertura Interzonal (Hasta 11,0 KM):",
+        title: "Cobertura Interzonal (Hasta 6,0 KM):",
         description:
-          "Cubre todo el eje comercial principal de Medellín, El Poblado, Laureles, Belén, Envigado e Itagüí en rutas de hasta 11,0 km.",
+          "Cubre todo el eje comercial principal en rutas de hasta 6,0 km.",
       },
       {
         title: "Regla del Punto Cero:",
         description:
-          "La distancia se calcula de forma transparente sumando la ubicación del punto de recogida exacto más la dirección final de entrega.",
-      },
-      {
-        title: "Ventana VIP Prioritaria (<45 Min):",
-        description:
-          "Prioridad alta de asignación con piloto de despacho en menos de 45 minutos dentro de la franja comercial de 11:00 AM a 05:00 PM.",
+          "La distancia se calcula sumando la ubicación del punto de recogida exacto más la dirección final de entrega.",
       },
       {
         title: "Cláusula de Excedente ($1.500 COP / KM extra):",
         description:
-          "Si una entrega supera los 11,0 km (ej. Bello, Copacabana, La Estrella), no pierdes el cupón: se descuenta el envío y solo se liquida un recargo automático de $1.500 COP por kilómetro adicional.",
+          "Si una entrega supera los 6,0 km, no pierdes el cupón: se descuenta el envío y solo se liquida un recargo automático de $1.500 COP por kilómetro adicional.",
       },
     ],
-    ctaText: "Adquirir Pack Corporate 11K",
+    ctaText: "Adquirir Pack Express 6K",
     whatsappMsg:
-      "Hola ÆON Fleet, quiero adquirir el Pack Corporate VIP ($310.000 COP por 25 envíos de hasta 11km). Deseo validar la distancia e iniciar mi activación.",
+      "Hola ÆON Fleet, quiero adquirir el Pack Express 6K ($100.000 COP por 10 envíos de hasta 6km). Deseo validar la distancia e iniciar mi activación.",
   },
   {
-    id: "enterprise",
-    badge: "MÁXIMO MARGEN B2B • PACK 50 ENVÍOS",
-    unitPrice: "$11.500 COP / envío",
-    title: "Pack Enterprise Aburrá ",
-    titleHighlight: "(50 Envíos)",
+    id: "metropolitano12k",
+    badge: "COBERTURA EXTENDIDA • PACK 10 ENVÍOS",
+    unitPrice: "$17.000 COP / envío",
+    title: "Pack Metropolitano 12K ",
+    titleHighlight: "(10 Envíos)",
     description:
-      "Máximo margen operacional para operaciones logísticas corporativas de alto volumen con cobertura extendida en todo el Área Metropolitana.",
-    totalPrice: "$575.000",
-    unitLabel: "COP / Total (50 Cupones)",
+      "Cobertura metropolitana extendida para trayectos de hasta 12 km en todo el Área Metropolitana.",
+    totalPrice: "$170.000",
+    unitLabel: "COP / Total (10 Cupones)",
     popular: false,
     microBadges: [
       { icon: "gps", text: "📍 Medición GPS Exacta" },
@@ -144,35 +139,30 @@ const PACKS_DATA: PackItem[] = [
       { icon: "shield", text: "🛡️ Cobertura Metropolitana" },
     ],
     keyFeatures: [
-      "50 Envíos prepagados a la tarifa óptima de $11.500 COP",
-      "Cobertura incluida: Hasta 15,0 KM (Toda el Área Metropolitana)",
-      "Carga masiva por planilla e integración directa de despachos",
+      "10 Envíos prepagados a $17.000 COP por trayecto",
+      "Cobertura incluida: Hasta 12,0 KM (Toda el Área Metropolitana)",
+      "Atención preferencial y reporte consolidado",
     ],
     rules: [
       {
-        title: "Cobertura Metropolitana (Hasta 15,0 KM):",
+        title: "Cobertura Metropolitana (Hasta 12,0 KM):",
         description:
-          "Cobertura amplia en todo el Valle de Aburrá de extremo a extremo en trayectos urbanos de hasta 15,0 km por envío.",
+          "Cobertura amplia en todo el Valle de Aburrá en trayectos urbanos de hasta 12,0 km por envío.",
       },
       {
         title: "Regla del Punto Cero:",
         description:
-          "La distancia se calcula de forma transparente sumando la ubicación del punto de recogida exacto más la dirección final de entrega.",
-      },
-      {
-        title: "Gestor de Flota & Carga por Planilla:",
-        description:
-          "Atención preferencial con gestor de flota dedicado, carga masiva por planilla de entregas y reporte consolidado.",
+          "La distancia se calcula sumando la ubicación del punto de recogida exacto más la dirección final de entrega.",
       },
       {
         title: "Cláusula de Excedente ($1.500 COP / KM extra):",
         description:
-          "Rutas extremas que rebasen los 15,0 km aplican recargo automático de $1.500 COP por kilómetro adicional sobre la ruta.",
+          "Rutas que rebasen los 12,0 km aplican recargo automático de $1.500 COP por kilómetro adicional sobre la ruta.",
       },
     ],
-    ctaText: "Adquirir Pack Enterprise 15K",
+    ctaText: "Adquirir Pack Metropolitano 12K",
     whatsappMsg:
-      "Hola ÆON Fleet, quiero adquirir el Pack Enterprise ($575.000 COP por 50 envíos de hasta 15km). Deseo propuesta corporativa e iniciar mi activación.",
+      "Hola ÆON Fleet, quiero adquirir el Pack Metropolitano 12K ($170.000 COP por 10 envíos de hasta 12km). Deseo propuesta e iniciar mi activación.",
   },
 ];
 
@@ -180,8 +170,8 @@ function PackRichCard({ pack, index }: { pack: PackItem; index: number }) {
   const [isOpen, setIsOpen] = useState(false);
 
   // Distinct Neon Themes per Pack
-  const isCorporate = pack.id === "corporate";
-  const isEnterprise = pack.id === "enterprise";
+  const isCorporate = pack.popular || pack.id === "express6k";
+  const isEnterprise = pack.id === "metropolitano12k";
 
   const theme = isCorporate
     ? {

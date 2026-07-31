@@ -12,6 +12,7 @@ import VolumeCalculator from "./components/VolumeCalculator";
 import Footer from "./components/Footer";
 import StickyCta from "./components/StickyCta";
 import TourGuide from "./components/TourGuide";
+import ExitIntentModal from "./components/ExitIntentModal";
 
 export default function App() {
   const [currentView, setCurrentView] = useState<'home' | 'policies' | 'testimonials' | 'calculator' | 'methodology' | 'order'>('home');
@@ -22,6 +23,9 @@ export default function App() {
 
   return (
     <div className="bg-[#030508] min-h-screen text-white font-mono selection:bg-cyan-500/30 selection:text-cyan-300 overflow-x-hidden">
+      {/* Exit Intent Recovery Modal */}
+      <ExitIntentModal />
+
       {/* Tour Guide Overlay (for new visitors) */}
       <TourGuide />
 

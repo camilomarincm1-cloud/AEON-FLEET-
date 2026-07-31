@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import {
   Plus,
   Trash2,
@@ -12,16 +12,18 @@ import {
   Banknote,
   ChevronDown,
   Building2,
-  FileText,
   Search,
   CheckCircle2,
   ShieldCheck,
   Package,
-  Layers,
+  AlertTriangle,
+  Scale,
+  ShieldAlert,
+  Loader2,
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 
-// --- HIERARCHICAL LOCATION DATABASE (MEDELLÍN & ABURRÁ VALLEY) ---
+// --- HIERARCHICAL LOCATION DATABASE (MEDELLÍN, ABURRÁ VALLEY & CORREGIMIENTOS) ---
 
 export interface NeighborhoodOption {
   id: string;
@@ -37,93 +39,6 @@ export interface MacroZone {
   neighborhoods: NeighborhoodOption[];
 }
 
-export const MACRO_ZONES: MacroZone[] = [
-  {
-    id: "poblado",
-    name: "El Poblado / Sur Exclusivo",
-    neighborhoods: [
-      { id: "poblado_milla", name: "Milla de Oro", macroZoneId: "poblado", macroZoneName: "El Poblado / Sur Exclusivo", popular: true },
-      { id: "poblado_provenza", name: "Provenza", macroZoneId: "poblado", macroZoneName: "El Poblado / Sur Exclusivo", popular: true },
-      { id: "poblado_castropol", name: "Castropol", macroZoneId: "poblado", macroZoneName: "El Poblado / Sur Exclusivo" },
-      { id: "poblado_manila", name: "Manila", macroZoneId: "poblado", macroZoneName: "El Poblado / Sur Exclusivo", popular: true },
-      { id: "poblado_patio_bonito", name: "Patio Bonito", macroZoneId: "poblado", macroZoneName: "El Poblado / Sur Exclusivo" },
-      { id: "poblado_astorga", name: "Astorga", macroZoneId: "poblado", macroZoneName: "El Poblado / Sur Exclusivo" },
-      { id: "poblado_los_balsos", name: "Los Balsos", macroZoneId: "poblado", macroZoneName: "El Poblado / Sur Exclusivo" },
-      { id: "poblado_san_lucas", name: "San Lucas", macroZoneId: "poblado", macroZoneName: "El Poblado / Sur Exclusivo" },
-      { id: "poblado_san_diego", name: "San Diego", macroZoneId: "poblado", macroZoneName: "El Poblado / Sur Exclusivo" },
-    ],
-  },
-  {
-    id: "laureles",
-    name: "Laureles / Estadio / Occidente",
-    neighborhoods: [
-      { id: "laureles_centro", name: "Laureles (Primer/Segundo Parque)", macroZoneId: "laureles", macroZoneName: "Laureles / Estadio / Occidente", popular: true },
-      { id: "laureles_estadio", name: "Estadio / Velódromo", macroZoneId: "laureles", macroZoneName: "Laureles / Estadio / Occidente" },
-      { id: "laureles_floresta", name: "La Floresta", macroZoneId: "laureles", macroZoneName: "Laureles / Estadio / Occidente" },
-      { id: "laureles_conquistadores", name: "Conquistadores", macroZoneId: "laureles", macroZoneName: "Laureles / Estadio / Occidente" },
-      { id: "laureles_san_javier", name: "San Javier", macroZoneId: "laureles", macroZoneName: "Laureles / Estadio / Occidente" },
-      { id: "laureles_belen", name: "Belén (Fátima, Rosales, La Palma)", macroZoneId: "laureles", macroZoneName: "Laureles / Estadio / Occidente", popular: true },
-    ],
-  },
-  {
-    id: "centro",
-    name: "Medellín Centro / Comercial",
-    neighborhoods: [
-      { id: "centro_san_antonio", name: "Centro / San Antonio", macroZoneId: "centro", macroZoneName: "Medellín Centro / Comercial", popular: true },
-      { id: "centro_plaza_mayor", name: "Plaza Mayor / Alpujarra", macroZoneId: "centro", macroZoneName: "Medellín Centro / Comercial" },
-      { id: "centro_villanueva", name: "Villanueva", macroZoneId: "centro", macroZoneName: "Medellín Centro / Comercial" },
-      { id: "centro_perpetuo_socorro", name: "Perpetuo Socorro", macroZoneId: "centro", macroZoneName: "Medellín Centro / Comercial" },
-      { id: "centro_guayaquil", name: "Guayaquil (El Hueco)", macroZoneId: "centro", macroZoneName: "Medellín Centro / Comercial", popular: true },
-      { id: "centro_san_benito", name: "San Benito", macroZoneId: "centro", macroZoneName: "Medellín Centro / Comercial" },
-      { id: "centro_prado", name: "Prado Centro", macroZoneId: "centro", macroZoneName: "Medellín Centro / Comercial" },
-    ],
-  },
-  {
-    id: "oriental",
-    name: "Medellín Oriental / Centros de Salud",
-    neighborhoods: [
-      { id: "oriental_buenos_aires", name: "Buenos Aires", macroZoneId: "oriental", macroZoneName: "Medellín Oriental / Centros de Salud" },
-      { id: "oriental_miraflores", name: "Miraflores", macroZoneId: "oriental", macroZoneName: "Medellín Oriental / Centros de Salud" },
-      { id: "oriental_aranjuez", name: "Aranjuez", macroZoneId: "oriental", macroZoneName: "Medellín Oriental / Centros de Salud" },
-      { id: "oriental_manrique", name: "Manrique", macroZoneId: "oriental", macroZoneName: "Medellín Oriental / Centros de Salud" },
-      { id: "oriental_hospitales", name: "Hospital / Sevilla / San Pedro", macroZoneId: "oriental", macroZoneName: "Medellín Oriental / Centros de Salud", popular: true },
-    ],
-  },
-  {
-    id: "sur_metro",
-    name: "Área Metropolitana Sur",
-    neighborhoods: [
-      { id: "sur_envigado_zuniga", name: "Envigado (Zúñiga / Milla Sur)", macroZoneId: "sur_metro", macroZoneName: "Área Metropolitana Sur", popular: true },
-      { id: "sur_envigado_antillas", name: "Envigado (Las Antillas / Alcalá)", macroZoneId: "sur_metro", macroZoneName: "Área Metropolitana Sur" },
-      { id: "sur_envigado_fizebad", name: "Envigado (Fizebad / Escobero)", macroZoneId: "sur_metro", macroZoneName: "Área Metropolitana Sur" },
-      { id: "sur_itagui_centro", name: "Itagüí (Centro / Santa María)", macroZoneId: "sur_metro", macroZoneName: "Área Metropolitana Sur" },
-      { id: "sur_sabaneta", name: "Sabaneta (Aves María / Mayorca)", macroZoneId: "sur_metro", macroZoneName: "Área Metropolitana Sur", popular: true },
-      { id: "sur_la_estrella", name: "La Estrella", macroZoneId: "sur_metro", macroZoneName: "Área Metropolitana Sur" },
-    ],
-  },
-  {
-    id: "norte_metro",
-    name: "Área Metropolitana Norte",
-    neighborhoods: [
-      { id: "norte_bello_niquia", name: "Bello (Niquía / Cabañas / Madera)", macroZoneId: "norte_metro", macroZoneName: "Área Metropolitana Norte", popular: true },
-      { id: "norte_copacabana", name: "Copacabana", macroZoneId: "norte_metro", macroZoneName: "Área Metropolitana Norte" },
-    ],
-  },
-];
-
-// Flat list for fast searching
-const ALL_NEIGHBORHOODS: NeighborhoodOption[] = MACRO_ZONES.flatMap((m) => m.neighborhoods);
-
-// Distance matrix (in Kilometers) between Macro Zones
-const ZONE_DISTANCE_MATRIX: Record<string, Record<string, number>> = {
-  poblado: { poblado: 2.5, laureles: 7.2, centro: 6.2, oriental: 8.0, sur_metro: 5.4, norte_metro: 16.5 },
-  laureles: { poblado: 7.2, laureles: 2.5, centro: 4.5, oriental: 7.8, sur_metro: 10.5, norte_metro: 14.0 },
-  centro: { poblado: 6.2, laureles: 4.5, centro: 2.0, oriental: 3.5, sur_metro: 11.5, norte_metro: 10.2 },
-  oriental: { poblado: 8.0, laureles: 7.8, centro: 3.5, oriental: 2.5, sur_metro: 13.8, norte_metro: 9.5 },
-  sur_metro: { poblado: 5.4, laureles: 10.5, centro: 11.5, oriental: 13.8, sur_metro: 3.0, norte_metro: 21.5 },
-  norte_metro: { poblado: 16.5, laureles: 14.0, centro: 10.2, oriental: 9.5, sur_metro: 21.5, norte_metro: 3.0 },
-};
-
 export interface ExtraStop {
   id: string;
   neighborhoodId: string;
@@ -133,18 +48,264 @@ export interface ExtraStop {
 }
 
 export interface TacticalAddress {
+  mode?: "guided" | "free";
+  freeText?: string;
   streetType: string;
   streetNumber: string;
   crossNumber: string;
   details: string;
 }
 
+export const zonasCobertura = [
+  // OPTIMIZACIÓN DE EMBUDO: Lo que más factura va primero.
+  "--- ZONAS VIP / ALTA DEMANDA ---",
+  "El Poblado (Milla de Oro / Provenza / Castropol / Manila)",
+  "El Poblado (Los Balsos / San Lucas / Astorga)",
+  "Laureles (Primer y Segundo Parque / Conquistadores)",
+  "Centro (San Antonio / Plaza Mayor / Guayaquil / Villanueva)",
+
+  "--- MEDELLÍN SUR & OCCIDENTE ---",
+  "Belén (Fátima / Rosales / La Palma / Los Alpes)",
+  "Guayabal (Cristo Rey / Parque / Santa Fe)",
+  "Estadio (Velódromo / Floresta / Suramericana)",
+  "San Javier (América / Santa Lucía)",
+
+  "--- MEDELLÍN CENTRO & ORIENTE ---",
+  "Prado Centro / Boston / Los Ángeles",
+  "Buenos Aires / Miraflores / Loreto",
+
+  "--- MEDELLÍN NORTE ---",
+  "Aranjuez / Manrique / Campo Valdés",
+  "Castilla / Doce de Octubre / Pedregal",
+  "Robledo / Pilarica / Córdoba",
+
+  "--- SUR METROPOLITANO (VALLE DE ABURRÁ) ---",
+  "Envigado (Zúñiga / Milla Sur / La Ayurá)",
+  "Envigado (Centro / Dorado / Las Antillas / Alcalá)",
+  "Envigado (Loma del Escobero / Fizebad)",
+  "Itagüí (Centro / Santa María / Simón Bolívar)",
+  "Itagüí (Ditaires / San Pío / Viviendas del Sur)",
+  "Sabaneta (Mayorca / Aves María / Centro / Carmelo)",
+  "La Estrella (Centro / La Tablaza / Pueblo Viejo)",
+  "Caldas (Centro / Variante / Locería)",
+
+  "--- NORTE METROPOLITANO (VALLE DE ABURRÁ) ---",
+  "Bello (Niquía / Cabañas / Madera / Barrio Pérez)",
+  "Bello (Centro / París / Fontidueño)",
+  "Copacabana (Centro / Machado / San Juan)",
+
+  "--- CORREGIMIENTOS & ZONAS ESPECIALES ---",
+  "San Antonio de Prado (Centro / Rosaleda / Limonar)",
+  "San Cristóbal (Centro / Ciudadela Nuevo Occidente)",
+  "Santa Elena (Vía Principal / Parque)",
+  "Altavista (Sector Central)",
+  "San Sebastián de Palmitas",
+];
+
+export const MACRO_ZONES: MacroZone[] = [
+  {
+    id: "vip",
+    name: "🔥 ZONAS VIP / ALTA DEMANDA",
+    neighborhoods: [
+      { id: "poblado_milla", name: "El Poblado (Milla de Oro / Provenza / Castropol / Manila)", macroZoneId: "vip", macroZoneName: "Zonas VIP / Alta Demanda", popular: true },
+      { id: "poblado_balsos", name: "El Poblado (Los Balsos / San Lucas / Astorga)", macroZoneId: "vip", macroZoneName: "Zonas VIP / Alta Demanda", popular: true },
+      { id: "laureles_parques", name: "Laureles (Primer y Segundo Parque / Conquistadores)", macroZoneId: "vip", macroZoneName: "Zonas VIP / Alta Demanda", popular: true },
+      { id: "centro_san_antonio", name: "Centro (San Antonio / Plaza Mayor / Guayaquil / Villanueva)", macroZoneId: "vip", macroZoneName: "Zonas VIP / Alta Demanda", popular: true },
+    ],
+  },
+  {
+    id: "medellin_sur_occidente",
+    name: "MEDELLÍN SUR & OCCIDENTE",
+    neighborhoods: [
+      { id: "belen_fatima", name: "Belén (Fátima / Rosales / La Palma / Los Alpes)", macroZoneId: "medellin_sur_occidente", macroZoneName: "Medellín Sur & Occidente", popular: true },
+      { id: "guayabal_cristo", name: "Guayabal (Cristo Rey / Parque / Santa Fe)", macroZoneId: "medellin_sur_occidente", macroZoneName: "Medellín Sur & Occidente" },
+      { id: "estadio_velodromo", name: "Estadio (Velódromo / Floresta / Suramericana)", macroZoneId: "medellin_sur_occidente", macroZoneName: "Medellín Sur & Occidente" },
+      { id: "san_javier_america", name: "San Javier (América / Santa Lucía)", macroZoneId: "medellin_sur_occidente", macroZoneName: "Medellín Sur & Occidente" },
+    ],
+  },
+  {
+    id: "medellin_centro_oriente",
+    name: "MEDELLÍN CENTRO & ORIENTE",
+    neighborhoods: [
+      { id: "prado_boston", name: "Prado Centro / Boston / Los Ángeles", macroZoneId: "medellin_centro_oriente", macroZoneName: "Medellín Centro & Oriente" },
+      { id: "buenos_aires_loreto", name: "Buenos Aires / Miraflores / Loreto", macroZoneId: "medellin_centro_oriente", macroZoneName: "Medellín Centro & Oriente" },
+    ],
+  },
+  {
+    id: "medellin_norte",
+    name: "MEDELLÍN NORTE",
+    neighborhoods: [
+      { id: "aranjuez_manrique", name: "Aranjuez / Manrique / Campo Valdés", macroZoneId: "medellin_norte", macroZoneName: "Medellín Norte" },
+      { id: "castilla_pedregal", name: "Castilla / Doce de Octubre / Pedregal", macroZoneId: "medellin_norte", macroZoneName: "Medellín Norte" },
+      { id: "robledo_pilarica", name: "Robledo / Pilarica / Córdoba", macroZoneId: "medellin_norte", macroZoneName: "Medellín Norte" },
+    ],
+  },
+  {
+    id: "sur_metropolitano",
+    name: "SUR METROPOLITANO (VALLE DE ABURRÁ)",
+    neighborhoods: [
+      { id: "envigado_zuniga", name: "Envigado (Zúñiga / Milla Sur / La Ayurá)", macroZoneId: "sur_metropolitano", macroZoneName: "Sur Metropolitano", popular: true },
+      { id: "envigado_centro", name: "Envigado (Centro / Dorado / Las Antillas / Alcalá)", macroZoneId: "sur_metropolitano", macroZoneName: "Sur Metropolitano" },
+      { id: "envigado_escobero", name: "Envigado (Loma del Escobero / Fizebad)", macroZoneId: "sur_metropolitano", macroZoneName: "Sur Metropolitano" },
+      { id: "itagui_centro", name: "Itagüí (Centro / Santa María / Simón Bolívar)", macroZoneId: "sur_metropolitano", macroZoneName: "Sur Metropolitano", popular: true },
+      { id: "itagui_ditaires", name: "Itagüí (Ditaires / San Pío / Viviendas del Sur)", macroZoneId: "sur_metropolitano", macroZoneName: "Sur Metropolitano" },
+      { id: "sabaneta_mayorca", name: "Sabaneta (Mayorca / Aves María / Centro / Carmelo)", macroZoneId: "sur_metropolitano", macroZoneName: "Sur Metropolitano", popular: true },
+      { id: "la_estrella_centro", name: "La Estrella (Centro / La Tablaza / Pueblo Viejo)", macroZoneId: "sur_metropolitano", macroZoneName: "Sur Metropolitano" },
+      { id: "caldas_centro", name: "Caldas (Centro / Variante / Locería)", macroZoneId: "sur_metropolitano", macroZoneName: "Sur Metropolitano" },
+    ],
+  },
+  {
+    id: "norte_metropolitano",
+    name: "NORTE METROPOLITANO (VALLE DE ABURRÁ)",
+    neighborhoods: [
+      { id: "bello_niquia", name: "Bello (Niquía / Cabañas / Madera / Barrio Pérez)", macroZoneId: "norte_metropolitano", macroZoneName: "Norte Metropolitano", popular: true },
+      { id: "bello_centro", name: "Bello (Centro / París / Fontidueño)", macroZoneId: "norte_metropolitano", macroZoneName: "Norte Metropolitano" },
+      { id: "copacabana_centro", name: "Copacabana (Centro / Machado / San Juan)", macroZoneId: "norte_metropolitano", macroZoneName: "Norte Metropolitano" },
+    ],
+  },
+  {
+    id: "corregimientos",
+    name: "CORREGIMIENTOS & ZONAS ESPECIALES",
+    neighborhoods: [
+      { id: "correg_prado", name: "San Antonio de Prado (Centro / Rosaleda / Limonar)", macroZoneId: "corregimientos", macroZoneName: "Corregimientos & Zonas Especiales", popular: true },
+      { id: "correg_cristobal", name: "San Cristóbal (Centro / Ciudadela Nuevo Occidente)", macroZoneId: "corregimientos", macroZoneName: "Corregimientos & Zonas Especiales" },
+      { id: "correg_santa_elena", name: "Santa Elena (Vía Principal / Parque)", macroZoneId: "corregimientos", macroZoneName: "Corregimientos & Zonas Especiales" },
+      { id: "correg_altavista", name: "Altavista (Sector Central)", macroZoneId: "corregimientos", macroZoneName: "Corregimientos & Zonas Especiales" },
+      { id: "correg_palmitas", name: "San Sebastián de Palmitas", macroZoneId: "corregimientos", macroZoneName: "Corregimientos & Zonas Especiales" },
+    ],
+  },
+];
+
+// Flat list for fast searching
+const ALL_NEIGHBORHOODS: NeighborhoodOption[] = MACRO_ZONES.flatMap((m) => m.neighborhoods);
+
+// Distance matrix (in Kilometers) between Macro Zones
+const ZONE_DISTANCE_MATRIX: Record<string, Record<string, number>> = {
+  vip: { vip: 3.0, medellin_sur_occidente: 6.0, medellin_centro_oriente: 4.5, medellin_norte: 10.0, sur_metropolitano: 8.0, norte_metropolitano: 16.0, corregimientos: 16.0 },
+  medellin_sur_occidente: { vip: 6.0, medellin_sur_occidente: 3.0, medellin_centro_oriente: 5.0, medellin_norte: 8.5, sur_metropolitano: 9.0, norte_metropolitano: 15.0, corregimientos: 12.0 },
+  medellin_centro_oriente: { vip: 4.5, medellin_sur_occidente: 5.0, medellin_centro_oriente: 2.5, medellin_norte: 6.0, sur_metropolitano: 11.0, norte_metropolitano: 12.0, corregimientos: 15.0 },
+  medellin_norte: { vip: 10.0, medellin_sur_occidente: 8.5, medellin_centro_oriente: 6.0, medellin_norte: 3.0, sur_metropolitano: 16.0, norte_metropolitano: 9.0, corregimientos: 15.0 },
+  sur_metropolitano: { vip: 8.0, medellin_sur_occidente: 9.0, medellin_centro_oriente: 11.0, medellin_norte: 16.0, sur_metropolitano: 4.0, norte_metropolitano: 22.0, corregimientos: 12.0 },
+  norte_metropolitano: { vip: 16.0, medellin_sur_occidente: 15.0, medellin_centro_oriente: 12.0, medellin_norte: 9.0, sur_metropolitano: 22.0, norte_metropolitano: 4.0, corregimientos: 25.0 },
+  corregimientos: { vip: 16.0, medellin_sur_occidente: 12.0, medellin_centro_oriente: 15.0, medellin_norte: 15.0, sur_metropolitano: 12.0, norte_metropolitano: 25.0, corregimientos: 5.0 },
+};
+
+// Precise latitude and longitude coordinates for each neighborhood in Aburrá Valley
+export const NEIGHBORHOOD_COORDS: Record<string, { lat: number; lng: number }> = {
+  poblado_milla: { lat: 6.2085, lng: -75.5670 },
+  poblado_balsos: { lat: 6.1920, lng: -75.5610 },
+  laureles_parques: { lat: 6.2450, lng: -75.5900 },
+  centro_san_antonio: { lat: 6.2465, lng: -75.5680 },
+  belen_fatima: { lat: 6.2250, lng: -75.5920 },
+  guayabal_cristo: { lat: 6.2120, lng: -75.5850 },
+  estadio_velodromo: { lat: 6.2550, lng: -75.5920 },
+  san_javier_america: { lat: 6.2500, lng: -75.6120 },
+  prado_boston: { lat: 6.2530, lng: -75.5600 },
+  buenos_aires_loreto: { lat: 6.2410, lng: -75.5480 },
+  aranjuez_manrique: { lat: 6.2750, lng: -75.5580 },
+  castilla_pedregal: { lat: 6.2900, lng: -75.5720 },
+  robledo_pilarica: { lat: 6.2750, lng: -75.5980 },
+  envigado_zuniga: { lat: 6.1820, lng: -75.5840 },
+  envigado_centro: { lat: 6.1720, lng: -75.5900 },
+  envigado_escobero: { lat: 6.1600, lng: -75.5750 },
+  itagui_centro: { lat: 6.1720, lng: -75.6100 },
+  itagui_ditaires: { lat: 6.1620, lng: -75.6200 },
+  sabaneta_mayorca: { lat: 6.1510, lng: -75.6150 },
+  la_estrella_centro: { lat: 6.1570, lng: -75.6430 },
+  caldas_centro: { lat: 6.0910, lng: -75.6350 },
+  bello_niquia: { lat: 6.3350, lng: -75.5500 },
+  bello_centro: { lat: 6.3300, lng: -75.5600 },
+  copacabana_centro: { lat: 6.3460, lng: -75.5120 },
+  correg_prado: { lat: 6.1830, lng: -75.6580 },
+  correg_cristobal: { lat: 6.2780, lng: -75.6350 },
+  correg_santa_elena: { lat: 6.2050, lng: -75.5000 },
+  correg_altavista: { lat: 6.2200, lng: -75.6300 },
+  correg_palmitas: { lat: 6.3400, lng: -75.6800 },
+};
+
+/**
+ * Derives spatial GPS coordinates from address inputs (Neighborhood + Street numbers)
+ */
+export function getTacticalCoordinates(
+  tactical: TacticalAddress,
+  neighborhoodId: string
+): { lat: number; lng: number } | null {
+  const base = NEIGHBORHOOD_COORDS[neighborhoodId];
+  if (!base) {
+    if (tactical.mode === "free" && tactical.freeText?.trim()) {
+      return { lat: 6.2465, lng: -75.5680 };
+    }
+    return null;
+  }
+
+  let lat = base.lat;
+  let lng = base.lng;
+
+  const streetText =
+    tactical.mode === "guided"
+      ? `${tactical.streetType || ""} ${tactical.streetNumber || ""} ${tactical.crossNumber || ""}`
+      : tactical.freeText || "";
+
+  const numbers = streetText.match(/\d+/g);
+  if (numbers && numbers.length >= 1) {
+    const mainNum = parseInt(numbers[0], 10);
+    const crossNum = numbers.length >= 2 ? parseInt(numbers[1], 10) : 0;
+    const isCalle = /calle|cl|diagonal|dg|transversal|tv/i.test(streetText);
+
+    if (mainNum > 0 && mainNum < 150) {
+      const offsetMain = (mainNum % 35) * 0.00015;
+      if (isCalle) lat += offsetMain - 0.0025;
+      else lng -= offsetMain - 0.0025;
+    }
+    if (crossNum > 0 && crossNum < 150) {
+      const offsetCross = (crossNum % 35) * 0.00015;
+      if (isCalle) lng -= offsetCross - 0.0025;
+      else lat += offsetCross - 0.0025;
+    }
+  }
+
+  return { lat, lng };
+}
+
+/**
+ * Calculates real-world road distance using Haversine formula + Aburrá Valley terrain coefficient
+ */
+export function computeHaversineDistanceKm(
+  c1: { lat: number; lng: number },
+  c2: { lat: number; lng: number }
+): number {
+  const R = 6371;
+  const dLat = ((c2.lat - c1.lat) * Math.PI) / 180;
+  const dLng = ((c2.lng - c1.lng) * Math.PI) / 180;
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos((c1.lat * Math.PI) / 180) *
+      Math.cos((c2.lat * Math.PI) / 180) *
+      Math.sin(dLng / 2) *
+      Math.sin(dLng / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  const straightKm = R * c;
+
+  const drivingKm = straightKm < 0.2 ? 1.0 : Math.max(1.2, straightKm * 1.38);
+  return Math.round(drivingKm * 10) / 10;
+}
+
+export interface ExtraStop {
+  id: string;
+  neighborhoodId: string;
+  address: string;
+  contactName: string;
+  contactPhone: string;
+}
+
 export const PRESET_ROUTES = [
-  { label: "Poblado ➔ Laureles", originId: "poblado_provenza", destId: "laureles_centro" },
-  { label: "Envigado ➔ Milla de Oro", originId: "sur_envigado_zuniga", destId: "poblado_milla" },
-  { label: "Bello ➔ El Poblado", originId: "norte_bello_niquia", destId: "poblado_provenza" },
-  { label: "Sabaneta ➔ Belén", originId: "sur_sabaneta", destId: "laureles_belen" },
-  { label: "Centro ➔ San Lucas", originId: "centro_san_antonio", destId: "poblado_san_lucas" },
+  { label: "Caldas ➔ El Poblado", originId: "caldas_centro", destId: "poblado_milla" },
+  { label: "Envigado ➔ Milla de Oro", originId: "envigado_zuniga", destId: "poblado_milla" },
+  { label: "Sabaneta ➔ Belén", originId: "sabaneta_mayorca", destId: "belen_fatima" },
+  { label: "Poblado ➔ Laureles", originId: "poblado_balsos", destId: "laureles_parques" },
+  { label: "San Antonio de Prado ➔ Centro", originId: "correg_prado", destId: "centro_san_antonio" },
+  { label: "Bello ➔ El Poblado", originId: "bello_niquia", destId: "poblado_milla" },
+  { label: "Copacabana ➔ Centro", originId: "copacabana_centro", destId: "centro_san_antonio" },
 ];
 
 export const PACKAGE_QUICK_CHIPS = [
@@ -200,98 +361,225 @@ function TacticalAddressBuilder({
   onContactPhoneChange,
   contactLabel,
 }: TacticalAddressBuilderProps) {
+  const mode = addressState.mode || "guided";
+
+  const selectedNeighborhoodObj = useMemo(
+    () => ALL_NEIGHBORHOODS.find((n) => n.id === neighborhoodId),
+    [neighborhoodId]
+  );
+
+  const formattedPreview = useMemo(() => {
+    if (addressState.mode === "free" && addressState.freeText?.trim()) {
+      const nPart = selectedNeighborhoodObj
+        ? ` — ${selectedNeighborhoodObj.name} (${selectedNeighborhoodObj.macroZoneName})`
+        : "";
+      return `${addressState.freeText.trim()}${nPart}`;
+    }
+
+    const via = addressState.streetType ? addressState.streetType : "";
+    const num = addressState.streetNumber.trim() ? ` ${addressState.streetNumber.trim()}` : "";
+    const cross = addressState.crossNumber.trim() ? ` # ${addressState.crossNumber.trim()}` : "";
+    const streetPart = `${via}${num}${cross}`.trim();
+
+    const neighborhoodPart = selectedNeighborhoodObj
+      ? `${selectedNeighborhoodObj.name} (${selectedNeighborhoodObj.macroZoneName})`
+      : "Barrio Por Definir";
+
+    const detailsPart = addressState.details.trim() ? ` (${addressState.details.trim()})` : "";
+
+    if (streetPart) {
+      return `${streetPart} - ${neighborhoodPart}${detailsPart}`;
+    }
+    return `${neighborhoodPart}${detailsPart}`;
+  }, [addressState, selectedNeighborhoodObj]);
+
+  const handleStreetTypeSelect = (type: string) => {
+    onAddressChange({
+      ...addressState,
+      mode: "guided",
+      streetType: type,
+    });
+  };
+
+  const handleAppendSuffix = (field: "streetNumber" | "crossNumber", suffix: string) => {
+    const currentVal = addressState[field] || "";
+    if (currentVal.endsWith(suffix)) {
+      onAddressChange({
+        ...addressState,
+        mode: "guided",
+        [field]: currentVal.slice(0, -suffix.length).trim(),
+      });
+    } else {
+      const cleanVal = currentVal.trim();
+      onAddressChange({
+        ...addressState,
+        mode: "guided",
+        [field]: cleanVal ? `${cleanVal}${suffix}` : suffix.trim(),
+      });
+    }
+  };
+
+  const handleAddDetailTag = (tag: string) => {
+    const currentDetails = addressState.details || "";
+    if (currentDetails.includes(tag)) return;
+    const newDetails = currentDetails.trim()
+      ? `${currentDetails.trim()}, ${tag}`
+      : tag;
+    onAddressChange({
+      ...addressState,
+      mode: "guided",
+      details: newDetails,
+    });
+  };
+
   return (
     <div className="bg-[#12141A]/90 border border-white/10 rounded-2xl p-5 sm:p-6 space-y-4 shadow-xl">
-      <div className="flex items-center justify-between border-b border-white/10 pb-3">
+      {/* Header & Mode Switcher */}
+      <div className="flex items-center justify-between border-b border-white/10 pb-3 flex-wrap gap-2">
         <span className="text-xs font-mono uppercase tracking-wider text-amber-400 font-bold flex items-center gap-2">
           {icon}
           <span>{title}</span>
         </span>
-        <span className="text-[10px] text-slate-400 font-mono bg-white/5 border border-white/10 px-2 py-0.5 rounded font-bold">
-          Captura Táctica Guía 1 - 4
-        </span>
-      </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-12 gap-3">
-        {/* Paso 1: Tipo de Vía */}
-        <div className="md:col-span-4">
-          <label className="text-[11px] font-mono text-slate-300 block mb-1 font-bold">
-            1. Tipo de Vía
-          </label>
-          <select
-            value={addressState.streetType}
-            onChange={(e) => onAddressChange({ ...addressState, streetType: e.target.value })}
-            className="w-full bg-[#0A0A0C] border border-white/15 rounded-xl px-3 py-2.5 text-xs text-white focus:border-amber-400 focus:outline-none font-mono font-bold cursor-pointer"
+        {/* Mode Toggle Buttons */}
+        <div className="flex items-center bg-[#0A0A0C] border border-white/15 p-1 rounded-xl gap-1">
+          <button
+            type="button"
+            onClick={() => onAddressChange({ ...addressState, mode: "guided" })}
+            className={`px-2.5 py-1 text-[11px] font-mono rounded-lg transition-all font-bold cursor-pointer ${
+              mode === "guided"
+                ? "bg-amber-400 text-black shadow-md"
+                : "text-slate-400 hover:text-white"
+            }`}
           >
-            <option value="">-- Selecciona Vía --</option>
-            {STREET_TYPES.map((st) => (
-              <option key={st.value} value={st.value} className="bg-[#0A0A0C] text-white">
-                {st.label}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        {/* Paso 2: Numeración Principal & Cruce */}
-        <div className="md:col-span-4">
-          <label className="text-[11px] font-mono text-slate-300 block mb-1 font-bold">
-            2. Vía Principal (N°)
-          </label>
-          <input
-            type="text"
-            placeholder="Ej: 72 Sur o 10A"
-            value={addressState.streetNumber}
-            onChange={(e) => onAddressChange({ ...addressState, streetNumber: e.target.value })}
-            className="w-full bg-[#0A0A0C] border border-white/15 rounded-xl px-3 py-2.5 text-xs text-white placeholder-slate-500 focus:border-amber-400 focus:outline-none font-mono"
-          />
-        </div>
-
-        <div className="md:col-span-4">
-          <label className="text-[11px] font-mono text-slate-300 block mb-1 font-bold">
-            # Cruce / Placa
-          </label>
-          <div className="flex items-center gap-1.5">
-            <span className="text-amber-400 font-mono text-xs font-bold">#</span>
-            <input
-              type="text"
-              placeholder="Ej: 14 - 05"
-              value={addressState.crossNumber}
-              onChange={(e) => onAddressChange({ ...addressState, crossNumber: e.target.value })}
-              className="w-full bg-[#0A0A0C] border border-white/15 rounded-xl px-3 py-2.5 text-xs text-white placeholder-slate-500 focus:border-amber-400 focus:outline-none font-mono"
-            />
-          </div>
+            ⚡ Asistente Nomenclatura
+          </button>
+          <button
+            type="button"
+            onClick={() => onAddressChange({ ...addressState, mode: "free" })}
+            className={`px-2.5 py-1 text-[11px] font-mono rounded-lg transition-all font-bold cursor-pointer ${
+              mode === "free"
+                ? "bg-amber-400 text-black shadow-md"
+                : "text-slate-400 hover:text-white"
+            }`}
+          >
+            📝 Pegar Texto Completo
+          </button>
         </div>
       </div>
 
-      {/* Paso 3: Zona / Barrio Específico */}
+      {/* Barrio / Zona Selector - Accessible first for routing */}
       <div>
         <HierarchicalNeighborhoodSelect
-          label="3. Zona / Barrio Específico (Cuadrante Aburrá)"
+          label="1. Municipio & Barrio / Sector (Valle de Aburrá)"
           icon={<MapPin size={14} className="text-amber-400 shrink-0" />}
           value={neighborhoodId}
           onChange={onNeighborhoodChange}
-          placeholder="-- Selecciona Barrio / Sector --"
+          placeholder="-- Selecciona Barrio / Sector (Caldas hasta Bello / Copacabana) --"
         />
       </div>
 
-      {/* Paso 4: Detalles Opcionales */}
-      <div>
-        <label className="text-[11px] font-mono text-slate-300 block mb-1 font-bold">
-          4. Detalles Opcionales (Interior, Apto, Oficina, Torre, Local)
-        </label>
-        <input
-          type="text"
-          placeholder="Ej: Apt 302, Edificio Milla de Oro, Torre 2, Pedir firma en portería"
-          value={addressState.details}
-          onChange={(e) => onAddressChange({ ...addressState, details: e.target.value })}
-          className="w-full bg-[#0A0A0C] border border-white/15 rounded-xl px-3.5 py-2.5 text-xs text-white placeholder-slate-500 focus:border-amber-400 focus:outline-none font-mono"
-        />
+      {/* Guided Mode (Asistente por Nomenclatura - Estructura Simplificada) */}
+      {mode === "guided" ? (
+        <div className="space-y-4 bg-black/40 p-4 rounded-lg border border-cyan-500/30">
+          {/* Fila 1: Tipo de Vía y Número Principal */}
+          <div className="flex gap-3">
+            <select
+              className="w-1/3 bg-gray-900 border border-gray-700 text-white rounded-md p-3 focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400 transition-all outline-none font-mono text-xs sm:text-sm font-bold cursor-pointer"
+              value={addressState.streetType || "Calle"}
+              onChange={(e) =>
+                onAddressChange({ ...addressState, mode: "guided", streetType: e.target.value })
+              }
+            >
+              <option value="Calle">Calle</option>
+              <option value="Carrera">Carrera</option>
+              <option value="Avenida">Avenida</option>
+              <option value="Transversal">Transversal</option>
+              <option value="Diagonal">Diagonal</option>
+              <option value="Circular">Circular</option>
+            </select>
+
+            <input
+              type="text"
+              placeholder="Ej: 43A Sur"
+              value={addressState.streetNumber}
+              onChange={(e) =>
+                onAddressChange({ ...addressState, mode: "guided", streetNumber: e.target.value })
+              }
+              className="w-2/3 bg-gray-900 border border-gray-700 text-white rounded-md p-3 focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400 transition-all outline-none font-mono text-xs sm:text-sm"
+            />
+          </div>
+
+          {/* Fila 2: Cruce y Placa (El formato exacto que el cliente conoce) */}
+          <div className="flex items-center gap-3">
+            <div className="flex items-center justify-center w-12 h-12 bg-cyan-500/10 text-cyan-400 font-bold rounded-md border border-cyan-500/30 text-lg shrink-0 font-mono">
+              #
+            </div>
+            <input
+              type="text"
+              placeholder="Ej: 5A - 113"
+              value={addressState.crossNumber}
+              onChange={(e) =>
+                onAddressChange({ ...addressState, mode: "guided", crossNumber: e.target.value })
+              }
+              className="w-full bg-gray-900 border border-gray-700 text-white rounded-md p-3 focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400 transition-all outline-none font-mono text-xs sm:text-sm"
+            />
+          </div>
+
+          {/* Fila 3: Detalles Específicos (Sin botones extraños, texto libre) */}
+          <div>
+            <input
+              type="text"
+              placeholder="Interior, Apto, Edificio, Portería (Opcional)"
+              value={addressState.details}
+              onChange={(e) =>
+                onAddressChange({ ...addressState, mode: "guided", details: e.target.value })
+              }
+              className="w-full bg-gray-900 border border-gray-700 text-white rounded-md p-3 focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400 transition-all outline-none font-mono text-xs sm:text-sm"
+            />
+          </div>
+        </div>
+      ) : (
+        /* Single Free Text Paste Mode */
+        <div className="space-y-2 pt-1">
+          <label className="text-[11px] font-mono text-slate-300 block font-bold">
+            2. Pegar o Escribir Dirección Completa
+          </label>
+          <textarea
+            rows={3}
+            placeholder="Ej: Carrera 43A # 10A - 20, Edificio Milla de Oro, Apto 502, El Poblado"
+            value={addressState.freeText || ""}
+            onChange={(e) =>
+              onAddressChange({ ...addressState, mode: "free", freeText: e.target.value })
+            }
+            className="w-full bg-[#0A0A0C] border border-amber-400/40 rounded-xl p-3 text-xs text-white placeholder-slate-500 focus:border-amber-400 focus:outline-none font-mono font-bold leading-relaxed"
+          />
+          <p className="text-[10px] font-mono text-slate-400">
+            💡 <strong className="text-amber-400">Consejo:</strong> Copia y pega libremente la dirección como te la enviaron por WhatsApp o Google Maps.
+          </p>
+        </div>
+      )}
+
+      {/* Live Formatted Address Preview Badge */}
+      <div className="bg-[#0A0A0C] border border-amber-400/30 p-2.5 rounded-xl flex items-center justify-between gap-2 shadow-inner">
+        <div className="flex items-center gap-2 overflow-hidden">
+          <Navigation size={14} className="text-amber-400 shrink-0 animate-pulse" />
+          <div className="truncate text-xs font-mono">
+            <span className="text-slate-400 text-[10px] block">Dirección Formateada para Piloto GPS:</span>
+            <span className="text-amber-300 font-bold truncate block">
+              {formattedPreview || "Ingresa tu nomenclatura para previsualizar"}
+            </span>
+          </div>
+        </div>
+        <span className="text-[9px] font-mono bg-amber-400/20 text-amber-300 border border-amber-400/30 px-2 py-0.5 rounded shrink-0 uppercase font-bold">
+          GPS listo
+        </span>
       </div>
 
       {/* Persona de Contacto */}
       <div className="pt-2 border-t border-white/10 grid grid-cols-1 sm:grid-cols-2 gap-3">
         <div>
-          <label className="text-[11px] font-mono text-slate-300 block mb-1">
+          <label className="text-[11px] font-mono text-slate-300 block mb-1 font-bold">
             {contactLabel} (Nombre)
           </label>
           <input
@@ -303,7 +591,7 @@ function TacticalAddressBuilder({
           />
         </div>
         <div>
-          <label className="text-[11px] font-mono text-slate-300 block mb-1">
+          <label className="text-[11px] font-mono text-slate-300 block mb-1 font-bold">
             Teléfono / Celular de Contacto
           </label>
           <input
@@ -396,7 +684,7 @@ function HierarchicalNeighborhoodSelect({
             <input
               type="text"
               autoFocus
-              placeholder="Escribe el barrio (ej: Provenza, Niquía, Belén)..."
+              placeholder="Escribe el barrio (ej: Provenza, Rosaleda, Niquía, Belén)..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full bg-[#0A0A0C] border border-amber-400 rounded-xl px-4 py-3 text-xs text-white placeholder-slate-500 focus:outline-none font-mono"
@@ -482,15 +770,17 @@ export default function MultiStopCalculator() {
   const [originNeighborhoodId, setOriginNeighborhoodId] = useState<string>("");
   const [destNeighborhoodId, setDestNeighborhoodId] = useState<string>("");
 
-  // Step 2: Modality Options & Dispatch Type
-  const [dispatchModality, setDispatchModality] = useState<"ocasional" | "corporate">("ocasional");
-  const [packageCapacity, setPackageCapacity] = useState<"morral" | "caja">("morral"); // "morral" = Incluido, "caja" = +$2.000
+  // Step 2: Weight & Surcharge Modality
+  // Weight options: 'estandar' (<=5kg, 40x40cm), 'sobrepeso' (5.1-10kg or >40x40cm, +$3.000 COP), 'pesada' (>10kg, CTA WhatsApp)
+  const [weightCategory, setWeightCategory] = useState<"estandar" | "sobrepeso" | "pesada">("estandar");
+  const [isSundayHoliday, setIsSundayHoliday] = useState<boolean>(false); // Recargo Domingo/Festivo +$3.000 COP
   const [hasCod, setHasCod] = useState<boolean>(false); // Recaudo COD (+$3.000 COP)
   const [codAmount, setCodAmount] = useState<string>("");
 
   // Step 3: Additional Services
   const [isExpress, setIsExpress] = useState<boolean>(false); // Express Flash (+40%)
   const [hasReturnReceipt, setHasReturnReceipt] = useState<boolean>(false); // Retorno de Guía (+$4.000 COP)
+  const [acceptedHabeasData, setAcceptedHabeasData] = useState<boolean>(false); // Ley 1581 Colombia
 
   // Sender & Recipient Details
   const [senderName, setSenderName] = useState("");
@@ -524,11 +814,22 @@ export default function MultiStopCalculator() {
   // Operational Completeness Verification (Courier / Pilot Guarantee)
   const verificationStatus = useMemo(() => {
     const hasOriginArea = Boolean(originNeighborhoodId);
-    const hasOriginStreet = Boolean(originTactical.streetNumber.trim());
+    const hasOriginStreet =
+      originTactical.mode === "free"
+        ? Boolean(originTactical.freeText?.trim())
+        : Boolean(originTactical.streetNumber.trim());
     const hasDestArea = Boolean(destNeighborhoodId);
-    const hasDestStreet = Boolean(destTactical.streetNumber.trim());
+    const hasDestStreet =
+      destTactical.mode === "free"
+        ? Boolean(destTactical.freeText?.trim())
+        : Boolean(destTactical.streetNumber.trim());
     const hasContactPhone = Boolean(destPhone.trim() || originPhone.trim() || senderPhone.trim());
-    const hasDetails = Boolean(destTactical.details.trim() || originTactical.details.trim());
+    const hasDetails = Boolean(
+      destTactical.details.trim() ||
+        originTactical.details.trim() ||
+        (originTactical.mode === "free" && originTactical.freeText?.trim()) ||
+        (destTactical.mode === "free" && destTactical.freeText?.trim())
+    );
 
     let score = 0;
     if (hasOriginArea) score += 25;
@@ -561,18 +862,101 @@ export default function MultiStopCalculator() {
 
   const isCalculated = Boolean(originObj && destObj);
 
-  // Calculate Distance in KM between Macro Zones + Micro Offsets
+  // Real OSRM Road Distance state & loader
+  const [osrmDistanceKm, setOsrmDistanceKm] = useState<number | null>(null);
+  const [isCalculatingDistance, setIsCalculatingDistance] = useState<boolean>(false);
+
+  // Asynchronous OSRM Real Road Distance Fetcher
+  useEffect(() => {
+    const oCoords = getTacticalCoordinates(originTactical, originNeighborhoodId);
+    const dCoords = getTacticalCoordinates(destTactical, destNeighborhoodId);
+
+    if (!oCoords || !dCoords) {
+      setOsrmDistanceKm(null);
+      return;
+    }
+
+    const waypoints = [oCoords];
+    for (const stop of extraStops) {
+      if (stop.neighborhoodId && NEIGHBORHOOD_COORDS[stop.neighborhoodId]) {
+        waypoints.push(NEIGHBORHOOD_COORDS[stop.neighborhoodId]);
+      }
+    }
+    waypoints.push(dCoords);
+
+    const coordsParam = waypoints
+      .map((w) => `${w.lng.toFixed(6)},${w.lat.toFixed(6)}`)
+      .join(";");
+
+    let isSubscribed = true;
+    setIsCalculatingDistance(true);
+
+    fetch(`https://router.project-osrm.org/route/v1/driving/${coordsParam}?overview=false`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (!isSubscribed) return;
+        if (data.code === "Ok" && data.routes && data.routes[0]) {
+          const meters = data.routes[0].distance;
+          const km = Math.max(1.0, Math.round((meters / 1000) * 10) / 10);
+          setOsrmDistanceKm(km);
+        } else {
+          setOsrmDistanceKm(null);
+        }
+      })
+      .catch(() => {
+        if (isSubscribed) setOsrmDistanceKm(null);
+      })
+      .finally(() => {
+        if (isSubscribed) setIsCalculatingDistance(false);
+      });
+
+    return () => {
+      isSubscribed = false;
+    };
+  }, [originTactical, originNeighborhoodId, destTactical, destNeighborhoodId, extraStops]);
+
+  // Calculate Real Road Distance in KM based on Exact Address Coordinates
   const calculatedDistanceKm = useMemo(() => {
-    if (!originObj || !destObj) return 0;
-    const originMacro = originObj.macroZoneId;
-    const destMacro = destObj.macroZoneId;
+    if (osrmDistanceKm !== null && osrmDistanceKm > 0) {
+      return osrmDistanceKm;
+    }
 
-    if (originObj.id === destObj.id) return 1.8; // Same neighborhood
-    if (originMacro === destMacro) return 3.2; // Same macro zone, different neighborhood
+    const oCoords = getTacticalCoordinates(originTactical, originNeighborhoodId);
+    const dCoords = getTacticalCoordinates(destTactical, destNeighborhoodId);
 
-    const baseMatrixDist = ZONE_DISTANCE_MATRIX[originMacro]?.[destMacro] ?? 6.0;
-    return baseMatrixDist;
-  }, [originObj, destObj]);
+    if (!oCoords || !dCoords) {
+      if (!originObj || !destObj) return 0;
+      const originMacro = originObj.macroZoneId;
+      const destMacro = destObj.macroZoneId;
+
+      if (originObj.id === destObj.id) return 1.8;
+      if (originMacro === destMacro) return 3.2;
+
+      return ZONE_DISTANCE_MATRIX[originMacro]?.[destMacro] ?? 6.0;
+    }
+
+    let totalKm = 0;
+    let prevCoords = oCoords;
+    for (const stop of extraStops) {
+      const stopCoords = stop.neighborhoodId ? NEIGHBORHOOD_COORDS[stop.neighborhoodId] : null;
+      if (stopCoords) {
+        totalKm += computeHaversineDistanceKm(prevCoords, stopCoords);
+        prevCoords = stopCoords;
+      }
+    }
+    totalKm += computeHaversineDistanceKm(prevCoords, dCoords);
+
+    return Math.round(totalKm * 10) / 10;
+  }, [
+    osrmDistanceKm,
+    originTactical,
+    originNeighborhoodId,
+    destTactical,
+    destNeighborhoodId,
+    extraStops,
+    originObj,
+    destObj,
+  ]);
 
   // Extra stops handlers
   const handleAddStop = () => {
@@ -600,55 +984,67 @@ export default function MultiStopCalculator() {
   };
 
   // --- FINANCIAL CALCULATION ENGINE ---
-  // Formula: $12.000 COP (Base primeros 2 KM) + $1.800 COP por cada KM adicional
-  const BASE_PRICE = 12000;
-  const EXTRA_KM_RATE = 1800;
-  const extraKmCount = Math.max(0, calculatedDistanceKm - 2);
+  // Tariff rules:
+  // - Base Fija: $8.000 COP (Cubre los primeros 3,0 km de distancia calculada).
+  // - Kilómetro Extra: $1.500 COP por km adicional (desde el km 3.1 en adelante).
+  // - Piso Mínimo de Carrera: $8.000 COP.
+  // - Redondeo: Math.ceil(precio / 100) * 100.
+  const BASE_PRICE = 8000;
+  const EXTRA_KM_RATE = 1500;
+  const extraKmCount = Math.max(0, calculatedDistanceKm - 3.0);
   const extraKmCost = Math.round(extraKmCount * EXTRA_KM_RATE);
-  const baseLegPrice = BASE_PRICE + extraKmCost;
+  const baseLegPrice = Math.max(8000, BASE_PRICE + extraKmCost);
 
-  // Extra Stops: +$5.000 COP per extra stop
+  // Surcharges Module
+  const weightSurcharge = weightCategory === "sobrepeso" ? 3000 : 0;
+  const sundayHolidaySurcharge = isSundayHoliday ? 3000 : 0;
+  const codCharge = hasCod ? 3000 : 0;
+  const returnReceiptCharge = hasReturnReceipt ? 4000 : 0;
   const extraStopsCost = extraStops.length * 5000;
 
-  // Modality Charges
-  const codCharge = hasCod ? 3000 : 0;
-  const boxCapacityCharge = packageCapacity === "caja" ? 2000 : 0;
-  const returnReceiptCharge = hasReturnReceipt ? 4000 : 0;
+  // Subtotal calculation before express surcharge
+  const rawSubtotal =
+    baseLegPrice +
+    weightSurcharge +
+    sundayHolidaySurcharge +
+    codCharge +
+    returnReceiptCharge +
+    extraStopsCost;
 
-  // Subtotal before express fee
-  const subtotalBeforeExpress = baseLegPrice + extraStopsCost + codCharge + boxCapacityCharge + returnReceiptCharge;
-  const expressCharge = isExpress ? Math.round(subtotalBeforeExpress * 0.4) : 0;
+  const expressCharge = isExpress ? Math.round(rawSubtotal * 0.4) : 0;
+  const rawTotal = rawSubtotal + expressCharge;
 
-  const totalCost = subtotalBeforeExpress + expressCharge;
+  // Math.ceil(precio / 100) * 100
+  const totalCost = Math.ceil(rawTotal / 100) * 100;
 
-  // Corporate Pack Anchor Effect ($12.400 COP per shipment base, up to 11 KM included)
-  const CORPORATE_PACK_RATE = 12400;
-  const corporateExtraKm = Math.max(0, calculatedDistanceKm - 11);
-  const corporateExtraKmCost = Math.round(corporateExtraKm * 1500);
-  const corporateEquivalentCost =
-    CORPORATE_PACK_RATE + corporateExtraKmCost + extraStopsCost + codCharge + boxCapacityCharge + returnReceiptCharge + expressCharge;
-  const b2bSavings = Math.max(0, totalCost - corporateEquivalentCost);
+  // --- PACK EXPRESS 6K (PLAN MÁS VENDIDO B2B) COMPARISON ENGINE ---
+  // Pack Express 6K (10 envíos x $100.000 COP) -> $10.000 COP por cupón (cubre hasta 6,0 KM)
+  // Excedente de distancia > 6,0 KM: $1.500 COP / KM extra
+  const pack6kKmIncluded = 6.0;
+  const pack6kUnitPrice = 10000;
+  const pack6kExtraKmCount = Math.max(0, calculatedDistanceKm - pack6kKmIncluded);
+  const pack6kExtraKmCost = Math.round(pack6kExtraKmCount * EXTRA_KM_RATE);
+  const pack6kBaseLegPrice = pack6kUnitPrice + pack6kExtraKmCost;
 
-  // Operational 02:00 PM Cut-off Rule & SLA Helper
+  const pack6kRawSubtotal =
+    pack6kBaseLegPrice +
+    weightSurcharge +
+    sundayHolidaySurcharge +
+    codCharge +
+    returnReceiptCharge +
+    extraStopsCost;
+
+  const pack6kExpressCharge = isExpress ? Math.round(pack6kRawSubtotal * 0.4) : 0;
+  const pack6kRawTotal = pack6kRawSubtotal + pack6kExpressCharge;
+  const pack6kTotalCost = Math.ceil(pack6kRawTotal / 100) * 100;
+
+  const savingsWithPack6k = totalCost - pack6kTotalCost;
+
+  // Active SLA Info
   const activeSlaInfo = useMemo(() => {
     const currentHour = new Date().getHours();
-
-    if (dispatchModality === "corporate") {
-      const isWithinVipWindow = currentHour >= 11 && currentHour < 17;
-      return {
-        mode: "corporate",
-        label: isWithinVipWindow ? "Inmediato Corporate (< 45 min)" : "Corporate Prioritario (Ventana VIP 11 AM - 5 PM)",
-        tag: "EXENCIÓN VIP",
-        description: isWithinVipWindow
-          ? "Atención prioritaria e inmediata dentro de la ventana de control de 11:00 AM a 05:00 PM."
-          : "Ventana VIP inmediata activa de 11:00 AM a 05:00 PM. Despacho programado en primera franja operativa a las 10:00 AM.",
-        badgeColor: "bg-emerald-500/20 text-emerald-400 border-emerald-500/40",
-      };
-    }
-
     if (currentHour < 14) {
       return {
-        mode: "same_day",
         label: "Mismo Día (< 02:00 PM)",
         tag: "DESPACHO HOY",
         description: "Solicitud recibida antes de las 02:00 PM. Despacho y entrega garantizados hoy mismo.",
@@ -656,14 +1052,13 @@ export default function MultiStopCalculator() {
       };
     } else {
       return {
-        mode: "next_day_am",
         label: "Mañana AM (Post 02:00 PM)",
         tag: "RUTA MAÑANA AM",
-        description: "Solicitud recibida después de las 02:00 PM. Programado automáticamente para la primera ruta del día siguiente a las 10:00 AM.",
+        description: "Solicitud recibida después de las 02:00 PM. Programado automáticamente para la primera ruta a las 10:00 AM.",
         badgeColor: "bg-amber-400/20 text-amber-300 border-amber-400/40",
       };
     }
-  }, [dispatchModality]);
+  }, []);
 
   const formatCOP = (val: number) => {
     return new Intl.NumberFormat("es-CO", {
@@ -677,6 +1072,13 @@ export default function MultiStopCalculator() {
     tactical: TacticalAddress,
     neighborhoodObj?: NeighborhoodOption
   ): string => {
+    if (tactical.mode === "free" && tactical.freeText?.trim()) {
+      const nPart = neighborhoodObj
+        ? ` — ${neighborhoodObj.name} (${neighborhoodObj.macroZoneName})`
+        : "";
+      return `${tactical.freeText.trim()}${nPart}`;
+    }
+
     const via = tactical.streetType ? tactical.streetType : "";
     const num = tactical.streetNumber.trim() ? ` ${tactical.streetNumber.trim()}` : "";
     const cross = tactical.crossNumber.trim() ? ` # ${tactical.crossNumber.trim()}` : "";
@@ -694,12 +1096,44 @@ export default function MultiStopCalculator() {
     return `${neighborhoodPart}${detailsPart}`;
   };
 
-  // Generate Professional Operational WhatsApp Payload
+  // Generate WhatsApp Payload with Deep Link GPS
   const generateWhatsAppUrl = () => {
     const originFormatted = formatTacticalAddress(originTactical, originObj);
     const destFormatted = formatTacticalAddress(destTactical, destObj);
 
-    const finalPrice = dispatchModality === "corporate" ? corporateEquivalentCost : totalCost;
+    // Deep Link GPS URL
+    const gpsDeepLink = `https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(
+      originFormatted
+    )}&destination=${encodeURIComponent(destFormatted)}&travelmode=driving`;
+
+    if (weightCategory === "pesada") {
+      const heavyMsg = `🚚 *SOLICITUD DE COTIZACIÓN PARA CARGA PESADA (>10 KG) — ÆON FLEET*
+=========================================
+📍 *1. PUNTO A (ORIGEN / RECOGIDA):*
+   • Dirección: ${originFormatted}
+   • Atiende: ${originContact.trim() || senderName.trim() || "Por definir"}
+   • Teléfono: ${originPhone.trim() || senderPhone.trim() || "Por confirmar"}
+
+🏁 *2. PUNTO B (DESTINO / ENTREGA):*
+   • Dirección: ${destFormatted}
+   • Recibe: ${destContact.trim() || "Por definir"}
+   • Teléfono: ${destPhone.trim() || "Por confirmar"}
+
+📦 *3. ESPECIFICACIONES DE CARGA PESADA:*
+   • Peso estimado: > 10 kg / Volumen especial
+   • Contenido: ${packageDescription.trim() || packageCategory}
+   • Servicio Domingo / Festivo: ${isSundayHoliday ? "SÍ" : "NO"}
+   • Notas: ${pilotNotes.trim() || "Sin observaciones adicionales"}
+
+🗺️ *DEEP LINK GPS DE RUTA:*
+${gpsDeepLink}
+=========================================
+Deseo cotizar la logística especial para Carga Pesada con la flota de Boxer Negra.`;
+      return `https://api.whatsapp.com/send?phone=573012964584&text=${encodeURIComponent(heavyMsg)}`;
+    }
+
+    // Standard Dispatch Message
+    const finalPrice = totalCost;
 
     let extraStopsText = "";
     if (extraStops.length > 0) {
@@ -714,7 +1148,10 @@ export default function MultiStopCalculator() {
     }
 
     const codText = hasCod ? `RECAUDO COD ACTIVADO: ${codAmount.trim() || "Por confirmar en sitio"}` : "Sin Recaudo COD";
-    const loadText = packageCapacity === "caja" ? "Caja / Volumen Especial (+ $2.000 COP)" : "Morral Estándar (< 5kg)";
+    const loadText =
+      weightCategory === "sobrepeso"
+        ? "Sobrepeso / Volumen Especial (5.1kg - 10kg, +$3.000 COP)"
+        : "Estándar (< 5kg, morral 40x40cm)";
     const contentText = packageDescription.trim() ? packageDescription.trim() : packageCategory;
     const pilotNotesText = pilotNotes.trim() ? pilotNotes.trim() : "Sin observaciones adicionales";
     const verificationBadge = verificationStatus.isFullyVerified
@@ -736,6 +1173,7 @@ export default function MultiStopCalculator() {
 ${extraStopsText ? `📦 *3. PARADAS INTERMEDIAS:\n${extraStopsText}\n\n` : ""}📦 *4. DETALLES DE CARGA & PAGO:*
    • Contenido: ${contentText}
    • Formato: ${loadText}
+   • Servicio Domingo / Festivo: ${isSundayHoliday ? "SÍ (+$3.000 COP)" : "NO"}
    • Gestión COD: ${codText}
    • Guía Física Devuelta: ${hasReturnReceipt ? "SÍ (Retorno a origen + $4.000 COP)" : "NO"}
    • Nota para el Piloto: ${pilotNotesText}
@@ -746,6 +1184,9 @@ ${extraStopsText ? `📦 *3. PARADAS INTERMEDIAS:\n${extraStopsText}\n\n` : ""}�
    • SLA Asignado: ${activeSlaInfo.label} (${activeSlaInfo.tag})
 
 💵 *TARIFA TOTAL ESTIMADA:* $${finalPrice.toLocaleString("es-CO")} COP
+
+🗺️ *DEEP LINK GPS DE RUTA:*
+${gpsDeepLink}
 =========================================
 ¿Piloto en Boxer Negra verificado para asignación inmediata?`;
 
@@ -753,135 +1194,22 @@ ${extraStopsText ? `📦 *3. PARADAS INTERMEDIAS:\n${extraStopsText}\n\n` : ""}�
   };
 
   return (
-    <div className="max-w-4xl mx-auto bg-[#080B10] border border-cyan-500/30 rounded-2xl p-5 sm:p-8 md:p-10 shadow-[0_0_60px_rgba(6,182,212,0.12)] relative overflow-hidden text-white font-mono backdrop-blur-xl">
-      {/* Background neon ambient lights */}
-      <div className="absolute top-0 right-0 w-80 h-80 bg-cyan-500/10 blur-[130px] pointer-events-none" />
-      <div className="absolute bottom-0 left-0 w-80 h-80 bg-emerald-500/10 blur-[130px] pointer-events-none" />
-
-      {/* Header Badge & Title */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-6 border-b border-cyan-500/20 mb-8 gap-4">
-        <div>
-          <span className="inline-flex items-center gap-2 font-mono text-[11px] font-bold tracking-wider text-cyan-300 uppercase bg-cyan-500/10 border border-cyan-500/30 px-3.5 py-1 rounded-full mb-2.5 shadow-[0_0_15px_rgba(6,182,212,0.2)]">
-            <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-cyan-400"></span>
-            </span>
-            MOTOR DE COTIZACIÓN EN TIEMPO REAL • VALLE DE ABURRÁ
+    <div className="w-full font-mono space-y-6">
+      {/* QUICK PRESET ROUTE CHIPS */}
+      <div className="bg-[#12141A]/80 border border-white/10 rounded-2xl p-4 sm:p-5 shadow-lg">
+        <div className="flex items-center justify-between mb-2">
+          <span className="text-xs font-mono uppercase tracking-wider text-amber-400 font-bold flex items-center gap-1.5">
+            <Zap size={14} />
+            <span>Rutas Frecuentes de Alta Demanda</span>
           </span>
-          <h3 className="font-mono text-2xl sm:text-3xl font-bold text-white">
-            Calculadora de Envíos & Cotización GPS
-          </h3>
-          <p className="text-xs text-slate-300 mt-1 max-w-xl leading-relaxed">
-            Obtén el precio exacto de tu domicilio con cálculo de distancia real vía Google Maps. Sin tarifas dinámicas por lluvia o tráfico.
-          </p>
-        </div>
-
-        <div>
-          <span className="text-xs font-mono text-cyan-300 bg-cyan-500/10 border border-cyan-500/40 px-3.5 py-2 rounded-xl font-bold uppercase tracking-wider block shadow-[0_0_15px_rgba(6,182,212,0.15)] text-center">
-            $12.000 Base (2 KM) + $1.800/KM
+          <span className="text-[10px] text-slate-400 hidden sm:inline">
+            Carga rápida 1-Click
           </span>
-        </div>
-      </div>
-
-      {/* TAB SELECTOR: Cotizador vs Guía Completa */}
-      <div className="flex bg-[#0E131F] p-1.5 rounded-xl border border-cyan-500/30 mb-6 max-w-md mx-auto shadow-inner">
-        <button
-          type="button"
-          onClick={() => setActiveTab("quick")}
-          className={`flex-1 py-2.5 px-3 text-xs font-mono font-bold rounded-lg transition-all flex items-center justify-center gap-2 cursor-pointer ${
-            activeTab === "quick"
-              ? "bg-cyan-400 text-black shadow-[0_0_20px_rgba(6,182,212,0.4)]"
-              : "text-slate-400 hover:text-white"
-          }`}
-        >
-          <Zap size={14} />
-          <span>1. Enrutador & Cotizador</span>
-        </button>
-        <button
-          type="button"
-          onClick={() => setActiveTab("full")}
-          className={`flex-1 py-2.5 px-3 text-xs font-mono font-bold rounded-lg transition-all flex items-center justify-center gap-2 cursor-pointer ${
-            activeTab === "full"
-              ? "bg-cyan-400 text-black shadow-[0_0_20px_rgba(6,182,212,0.4)]"
-              : "text-slate-400 hover:text-white"
-          }`}
-        >
-          <FileText size={14} />
-          <span>2. Guía Operativa Completa</span>
-        </button>
-      </div>
-
-      {/* ⏱️ HORARIOS Y GARANTÍA DE TIEMPO */}
-      <div className="bg-[#0A0D14] border border-cyan-500/30 rounded-2xl p-5 sm:p-6 mb-8 backdrop-blur-md relative overflow-hidden shadow-xl">
-        <div className="flex items-center justify-between border-b border-cyan-500/20 pb-3 mb-4">
-          <div className="flex items-center gap-2.5">
-            <Clock size={18} className="text-cyan-400 shrink-0 animate-pulse" />
-            <h4 className="text-xs sm:text-sm font-mono font-bold uppercase tracking-wider text-white">
-              Horario de Operación & Tiempos Garantizados
-            </h4>
-          </div>
-          <span className="text-[10px] font-mono text-emerald-400 bg-emerald-500/10 border border-emerald-500/30 px-2.5 py-1 rounded-full font-bold uppercase">
-            🟢 FLOTA DISPONIBLE HOY
-          </span>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {/* Item 1: Horario */}
-          <div className="bg-[#101622] border border-white/10 rounded-xl p-3.5 space-y-1">
-            <span className="text-[10px] font-mono font-bold uppercase text-cyan-300 block">
-              ⏱️ Horario Continuo
-            </span>
-            <p className="text-xs font-mono text-white font-bold">
-              10:00 AM a 08:00 PM
-            </p>
-            <p className="text-[11px] font-mono text-slate-400">
-              Lunes a Sábado. Atención ágil en Medellín, Envigado, Sabaneta, Itagüí y Bello.
-            </p>
-          </div>
-
-          {/* Item 2: Regla de Entrega Mismo Día */}
-          <div className="bg-[#101622] border border-white/10 rounded-xl p-3.5 space-y-1">
-            <span className="text-[10px] font-mono font-bold uppercase text-cyan-300 block">
-              📅 Corte de Entrega
-            </span>
-            <p className="text-xs font-mono text-slate-200">
-              • <strong className="text-white">Antes de 02:00 PM:</strong> Entrega el <strong className="text-cyan-300">mismo día</strong>.
-            </p>
-            <p className="text-xs font-mono text-slate-200">
-              • <strong className="text-white">Después de 02:00 PM:</strong> Se entrega <strong className="text-slate-300">mañana AM</strong>.
-            </p>
-          </div>
-
-          {/* Item 3: Excepción VIP Corporate */}
-          <div className="bg-gradient-to-r from-cyan-500/10 via-emerald-500/15 to-emerald-500/10 border border-emerald-500/40 rounded-xl p-3.5 space-y-1">
-            <div className="flex items-center gap-1.5">
-              <Zap size={14} className="text-emerald-400 shrink-0" />
-              <span className="text-[10px] font-mono font-bold uppercase text-emerald-400">
-                🚀 Despacho VIP Expreso
-              </span>
-            </div>
-            <p className="text-xs font-mono text-white font-bold">
-              Asignación en menos de 45 Min
-            </p>
-            <p className="text-[11px] font-mono text-slate-300">
-              Prioridad de asignación para clientes Pack Corporate (11 AM - 5 PM).
-            </p>
-          </div>
-        </div>
-      </div>
-
-      {/* 🚀 ATAJOS RÁPIDOS DE COTIZACIÓN EN 1 CLIC */}
-      <div className="bg-[#0E131F] border border-cyan-500/30 rounded-2xl p-4 mb-6 shadow-lg">
-        <div className="flex items-center justify-between mb-2.5">
-          <span className="text-xs font-mono font-bold uppercase text-cyan-300 flex items-center gap-1.5">
-            <Zap size={15} />
-            <span>Rutas Más Solicitadas (Cotiza en 1 Clic):</span>
-          </span>
-          <span className="text-[10px] font-mono text-slate-400">Valle de Aburrá</span>
         </div>
         <div className="flex flex-wrap gap-2">
           {PRESET_ROUTES.map((route) => {
-            const isActive = originNeighborhoodId === route.originId && destNeighborhoodId === route.destId;
+            const isSelected =
+              originNeighborhoodId === route.originId && destNeighborhoodId === route.destId;
             return (
               <button
                 key={route.label}
@@ -890,17 +1218,45 @@ ${extraStopsText ? `📦 *3. PARADAS INTERMEDIAS:\n${extraStopsText}\n\n` : ""}�
                   setOriginNeighborhoodId(route.originId);
                   setDestNeighborhoodId(route.destId);
                 }}
-                className={`px-3 py-1.5 text-xs font-mono font-bold rounded-xl border transition-all cursor-pointer flex items-center gap-1.5 ${
-                  isActive
-                    ? "bg-cyan-400 text-black border-cyan-400 shadow-[0_0_15px_rgba(6,182,212,0.4)] scale-[1.02]"
-                    : "bg-[#080B10] text-slate-300 border-white/10 hover:border-cyan-400/50 hover:text-white"
+                className={`text-xs font-mono px-3 py-1.5 rounded-xl border transition-all cursor-pointer font-bold ${
+                  isSelected
+                    ? "bg-amber-400 text-black border-amber-400 shadow-md shadow-amber-400/20"
+                    : "bg-[#0A0A0C] text-slate-300 border-white/10 hover:border-amber-400/40 hover:text-white"
                 }`}
               >
-                <span>⚡ {route.label}</span>
+                {route.label}
               </button>
             );
           })}
         </div>
+      </div>
+
+      {/* TAB SELECTOR: CAPTURA RÁPIDA VS GUÍA COMPLETA */}
+      <div className="flex bg-[#12141A] p-1.5 rounded-2xl border border-white/10">
+        <button
+          type="button"
+          onClick={() => setActiveTab("quick")}
+          className={`flex-1 py-3 px-4 rounded-xl text-xs sm:text-sm font-mono font-bold transition-all cursor-pointer flex items-center justify-center gap-2 ${
+            activeTab === "quick"
+              ? "bg-amber-400 text-black shadow-lg shadow-amber-400/20"
+              : "text-slate-400 hover:text-white"
+          }`}
+        >
+          <Zap size={16} />
+          <span>1. Cotizador Expreso por Barrios</span>
+        </button>
+        <button
+          type="button"
+          onClick={() => setActiveTab("full")}
+          className={`flex-1 py-3 px-4 rounded-xl text-xs sm:text-sm font-mono font-bold transition-all cursor-pointer flex items-center justify-center gap-2 ${
+            activeTab === "full"
+              ? "bg-amber-400 text-black shadow-lg shadow-amber-400/20"
+              : "text-slate-400 hover:text-white"
+          }`}
+        >
+          <Package size={16} />
+          <span>2. Guía Operativa Completa</span>
+        </button>
       </div>
 
       {/* STEP 1: SELECTOR TÁCTICO DE DIRECCIONES VIALES (ORIGEN Y DESTINO) */}
@@ -934,95 +1290,129 @@ ${extraStopsText ? `📦 *3. PARADAS INTERMEDIAS:\n${extraStopsText}\n\n` : ""}�
         />
       </div>
 
-      {/* STEP 2: MODALITY & CODES SELECTORS */}
+      {/* STEP 2: MODALIDAD DE CARGA & RECARGOS */}
       <div className="bg-[#12141A]/90 border border-white/10 rounded-2xl p-5 sm:p-6 mb-8 space-y-4">
         <span className="text-xs font-mono uppercase tracking-wider text-amber-400 font-bold block mb-2 flex items-center gap-2">
           <Package size={16} />
           <span>2. Modalidad de Carga & Gestión Financiera</span>
         </span>
 
-        {/* MODALITY SELECTOR: OCASIONAL VS PACK CORPORATE */}
-        <div className="bg-[#0A0A0C] border border-white/15 rounded-xl p-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-          <div className="flex items-center gap-3">
-            <Sparkles size={18} className="text-amber-400 shrink-0" />
-            <div>
-              <div className="flex items-center gap-2">
-                <span className="text-xs font-bold text-white block">Tipo de Cliente / Plan de Despacho</span>
-                <span className={`text-[9px] font-mono font-bold px-2 py-0.5 rounded border ${activeSlaInfo.badgeColor}`}>
-                  {activeSlaInfo.tag}
+        {/* SELECTOR DE PESO / VOLUMEN (ESTÁNDAR vs SOBREPESO vs PESADA) */}
+        <div className="space-y-3">
+          <label className="text-xs font-mono text-slate-300 block font-bold">
+            📦 Dimensión y Peso del Paquete:
+          </label>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            {/* Option 1: Estándar */}
+            <button
+              type="button"
+              onClick={() => setWeightCategory("estandar")}
+              className={`p-3.5 rounded-xl border text-left transition-all cursor-pointer flex flex-col justify-between ${
+                weightCategory === "estandar"
+                  ? "bg-amber-400/15 border-amber-400 shadow-md"
+                  : "bg-[#0A0A0C] border-white/10 hover:border-white/20"
+              }`}
+            >
+              <div className="flex items-center justify-between mb-1">
+                <span className="text-xs font-bold text-white">Estándar</span>
+                <span className="text-[10px] font-mono text-amber-400 font-bold bg-amber-400/10 px-2 py-0.5 rounded">
+                  +$0 COP
                 </span>
               </div>
-              <span className="text-[10px] text-slate-400">
-                {activeSlaInfo.description}
+              <span className="text-[10px] text-slate-400 leading-tight">
+                Hasta 5 kg • Morral 40x40 cm
               </span>
-            </div>
+            </button>
+
+            {/* Option 2: Sobrepeso / Volumen Especial */}
+            <button
+              type="button"
+              onClick={() => setWeightCategory("sobrepeso")}
+              className={`p-3.5 rounded-xl border text-left transition-all cursor-pointer flex flex-col justify-between ${
+                weightCategory === "sobrepeso"
+                  ? "bg-amber-400/15 border-amber-400 shadow-md"
+                  : "bg-[#0A0A0C] border-white/10 hover:border-white/20"
+              }`}
+            >
+              <div className="flex items-center justify-between mb-1">
+                <span className="text-xs font-bold text-white">Sobrepeso / Vol.</span>
+                <span className="text-[10px] font-mono text-amber-400 font-bold bg-amber-400/10 px-2 py-0.5 rounded">
+                  +$3.000 COP
+                </span>
+              </div>
+              <span className="text-[10px] text-slate-400 leading-tight">
+                5.1 kg a 10 kg O &gt; 40x40 cm
+              </span>
+            </button>
+
+            {/* Option 3: Carga Pesada (>10kg) */}
+            <button
+              type="button"
+              onClick={() => setWeightCategory("pesada")}
+              className={`p-3.5 rounded-xl border text-left transition-all cursor-pointer flex flex-col justify-between ${
+                weightCategory === "pesada"
+                  ? "bg-red-500/20 border-red-500 shadow-md"
+                  : "bg-[#0A0A0C] border-white/10 hover:border-white/20"
+              }`}
+            >
+              <div className="flex items-center justify-between mb-1">
+                <span className="text-xs font-bold text-red-400">Carga Pesada</span>
+                <span className="text-[10px] font-mono text-red-400 font-bold bg-red-500/20 px-2 py-0.5 rounded">
+                  &gt; 10 kg
+                </span>
+              </div>
+              <span className="text-[10px] text-slate-400 leading-tight">
+                Requiere cotización WhatsApp
+              </span>
+            </button>
           </div>
 
-          <div className="flex bg-[#12141A] p-1 rounded-lg border border-white/10 shrink-0">
-            <button
-              type="button"
-              onClick={() => setDispatchModality("ocasional")}
-              className={`px-3 py-1.5 text-xs font-mono font-bold rounded transition-all cursor-pointer ${
-                dispatchModality === "ocasional"
-                  ? "bg-amber-400 text-black shadow-md"
-                  : "text-slate-400 hover:text-white"
-              }`}
-            >
-              Ocasional (SLA 12 PM)
-            </button>
-            <button
-              type="button"
-              onClick={() => setDispatchModality("corporate")}
-              className={`px-3 py-1.5 text-xs font-mono font-bold rounded transition-all cursor-pointer flex items-center gap-1 ${
-                dispatchModality === "corporate"
-                  ? "bg-emerald-400 text-black shadow-md"
-                  : "text-slate-400 hover:text-emerald-400"
-              }`}
-            >
-              <Zap size={12} />
-              Pack Corporate (&lt;45 min)
-            </button>
-          </div>
+          {/* UI Alert when Sobrepeso is active */}
+          <AnimatePresence>
+            {weightCategory === "sobrepeso" && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: "auto" }}
+                exit={{ opacity: 0, height: 0 }}
+                className="overflow-hidden"
+              >
+                <div className="bg-amber-500/10 border border-amber-500/30 rounded-xl p-3 flex items-start gap-2 text-xs font-mono text-amber-300">
+                  <AlertTriangle size={16} className="text-amber-400 shrink-0 mt-0.5" />
+                  <span>
+                    ⚠️ Este pedido requiere foto del paquete previa vía WhatsApp para coordinar logística.
+                  </span>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {/* Modalidad 1: Capacity Selection */}
-          <div className="bg-[#0A0A0C] border border-white/10 rounded-xl p-3.5 flex items-center justify-between">
+        {/* RECARGOS Y OPCIONES SECUNDARIAS */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
+          {/* Recargo Domingo / Festivo */}
+          <div
+            onClick={() => setIsSundayHoliday(!isSundayHoliday)}
+            className={`bg-[#0A0A0C] border p-3.5 rounded-xl flex items-center justify-between cursor-pointer transition-all ${
+              isSundayHoliday ? "border-amber-400 bg-amber-400/10" : "border-white/10 hover:border-white/20"
+            }`}
+          >
             <div className="flex items-center gap-3">
-              <PackageCheck size={18} className="text-amber-400 shrink-0" />
+              <Clock size={18} className={isSundayHoliday ? "text-amber-400" : "text-slate-400"} />
               <div>
-                <span className="text-xs font-bold text-white block">📦 Capacidad de Carga</span>
-                <span className="text-[10px] text-slate-400">Morral técnico impermeable</span>
+                <span className="text-xs font-bold text-white block">Servicio en Domingo / Festivo</span>
+                <span className="text-[10px] text-slate-400">Recargo operativo (+ $3.000 COP)</span>
               </div>
             </div>
-
-            <div className="flex bg-[#12141A] p-1 rounded-lg border border-white/10">
-              <button
-                type="button"
-                onClick={() => setPackageCapacity("morral")}
-                className={`px-2.5 py-1 text-[11px] font-mono font-bold rounded transition-all cursor-pointer ${
-                  packageCapacity === "morral"
-                    ? "bg-amber-400 text-black"
-                    : "text-slate-400 hover:text-white"
-                }`}
-              >
-                Morral (&lt;5kg)
-              </button>
-              <button
-                type="button"
-                onClick={() => setPackageCapacity("caja")}
-                className={`px-2.5 py-1 text-[11px] font-mono font-bold rounded transition-all cursor-pointer ${
-                  packageCapacity === "caja"
-                    ? "bg-amber-400 text-black"
-                    : "text-slate-400 hover:text-white"
-                }`}
-              >
-                Caja (+ $2k)
-              </button>
-            </div>
+            <input
+              type="checkbox"
+              checked={isSundayHoliday}
+              onChange={() => {}}
+              className="w-4 h-4 accent-amber-400 cursor-pointer shrink-0"
+            />
           </div>
 
-          {/* Modalidad 2: Recaudo COD (Contra Entrega) */}
+          {/* Recaudo COD (Contra Entrega) */}
           <div
             onClick={() => setHasCod(!hasCod)}
             className={`bg-[#0A0A0C] border p-3.5 rounded-xl flex items-center justify-between cursor-pointer transition-all ${
@@ -1214,73 +1604,6 @@ ${extraStopsText ? `📦 *3. PARADAS INTERMEDIAS:\n${extraStopsText}\n\n` : ""}�
               </div>
             </div>
 
-            {/* Address Details Origen & Destino */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="bg-[#12141A] border border-white/10 rounded-xl p-5">
-                <h4 className="text-xs font-mono uppercase tracking-wider text-amber-400 font-bold mb-3 flex items-center gap-2">
-                  <MapPin size={16} />
-                  <span>Detalles Adicionales de Origen</span>
-                </h4>
-                <div className="space-y-3">
-                  <input
-                    type="text"
-                    placeholder="Interior, Apto, Oficina, Torre o Local Comercial"
-                    value={originTactical.details}
-                    onChange={(e) => setOriginTactical({ ...originTactical, details: e.target.value })}
-                    className="w-full bg-[#0A0A0C] border border-white/15 rounded-lg px-3.5 py-2.5 text-xs text-white placeholder-slate-500 focus:border-amber-400 focus:outline-none"
-                  />
-                  <div className="grid grid-cols-2 gap-2">
-                    <input
-                      type="text"
-                      placeholder="Quien entrega"
-                      value={originContact}
-                      onChange={(e) => setOriginContact(e.target.value)}
-                      className="bg-[#0A0A0C] border border-white/15 rounded-lg px-3 py-2 text-xs text-white placeholder-slate-500 focus:border-amber-400 focus:outline-none"
-                    />
-                    <input
-                      type="tel"
-                      placeholder="Teléfono"
-                      value={originPhone}
-                      onChange={(e) => setOriginPhone(e.target.value)}
-                      className="bg-[#0A0A0C] border border-white/15 rounded-lg px-3 py-2 text-xs text-white placeholder-slate-500 focus:border-amber-400 focus:outline-none"
-                    />
-                  </div>
-                </div>
-              </div>
-
-              <div className="bg-[#12141A] border border-white/10 rounded-xl p-5">
-                <h4 className="text-xs font-mono uppercase tracking-wider text-amber-400 font-bold mb-3 flex items-center gap-2">
-                  <Navigation size={16} />
-                  <span>Detalles Adicionales de Destino</span>
-                </h4>
-                <div className="space-y-3">
-                  <input
-                    type="text"
-                    placeholder="Interior, Apto, Oficina, Torre o Local Comercial"
-                    value={destTactical.details}
-                    onChange={(e) => setDestTactical({ ...destTactical, details: e.target.value })}
-                    className="w-full bg-[#0A0A0C] border border-white/15 rounded-lg px-3.5 py-2.5 text-xs text-white placeholder-slate-500 focus:border-amber-400 focus:outline-none"
-                  />
-                  <div className="grid grid-cols-2 gap-2">
-                    <input
-                      type="text"
-                      placeholder="Destinatario"
-                      value={destContact}
-                      onChange={(e) => setDestContact(e.target.value)}
-                      className="bg-[#0A0A0C] border border-white/15 rounded-lg px-3 py-2 text-xs text-white placeholder-slate-500 focus:border-amber-400 focus:outline-none"
-                    />
-                    <input
-                      type="tel"
-                      placeholder="Teléfono"
-                      value={destPhone}
-                      onChange={(e) => setDestPhone(e.target.value)}
-                      className="bg-[#0A0A0C] border border-white/15 rounded-lg px-3 py-2 text-xs text-white placeholder-slate-500 focus:border-amber-400 focus:outline-none"
-                    />
-                  </div>
-                </div>
-              </div>
-            </div>
-
             {/* Special Services & Quick Instruction Chips */}
             <div className="bg-[#12141A] border border-white/10 rounded-xl p-5 space-y-4">
               <h4 className="text-xs font-mono uppercase tracking-wider text-amber-400 font-bold flex items-center gap-2">
@@ -1380,55 +1703,127 @@ ${extraStopsText ? `📦 *3. PARADAS INTERMEDIAS:\n${extraStopsText}\n\n` : ""}�
         )}
       </AnimatePresence>
 
-      {/* REAL-TIME CALCULATION RESULT CARD (SPACE MONO / DARK LUXURY) */}
-      <AnimatePresence>
-        {isCalculated ? (
-          <motion.div
-            initial={{ opacity: 0, y: 15 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 15 }}
-            transition={{ duration: 0.4, type: "spring", damping: 25 }}
-            className="space-y-6"
-          >
-            {/* DARK LUXURY CALCULATION SUMMARY */}
-            <div className="bg-[#12141A] border border-amber-400/40 rounded-2xl p-6 sm:p-8 shadow-2xl relative overflow-hidden">
-              <div className="absolute top-0 right-0 w-32 h-32 bg-amber-400/10 rounded-full blur-2xl pointer-events-none" />
-
-              {/* Route Heading */}
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-5 border-b border-white/10 mb-6 gap-3">
+      {/* REAL-TIME CALCULATION RESULT CONTAINER (FIXED MIN-HEIGHT FOR CLS = 0) */}
+      <div className="min-h-[260px] relative">
+        <AnimatePresence mode="wait">
+          {weightCategory === "pesada" ? (
+            /* HEAVY LOAD (>10KG) SPECIAL CTA CASE */
+            <motion.div
+              key="heavy-load-card"
+              initial={{ opacity: 0, scale: 0.98 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.98 }}
+              transition={{ duration: 0.3 }}
+              className="bg-[#160D0D] border border-red-500/50 rounded-2xl p-6 sm:p-8 shadow-2xl relative overflow-hidden space-y-4"
+            >
+              <div className="flex items-center gap-3 border-b border-red-500/30 pb-4">
+                <Scale size={24} className="text-red-400 shrink-0" />
                 <div>
-                  <span className="text-[11px] font-mono text-slate-400 uppercase tracking-widest block mb-1">
-                    Enrutamiento Seleccionado
-                  </span>
-                  <div className="text-sm sm:text-base font-bold text-white flex items-center gap-2 flex-wrap">
-                    <span className="text-amber-400">{originObj?.name}</span>
-                    <span className="text-slate-500">➔</span>
-                    <span className="text-amber-400">{destObj?.name}</span>
-                    {extraStops.length > 0 && (
-                      <span className="text-xs font-mono text-emerald-400 bg-emerald-500/10 border border-emerald-500/30 px-2 py-0.5 rounded">
-                        (+{extraStops.length} paradas)
-                      </span>
-                    )}
-                  </div>
-                </div>
-
-                <div className="flex flex-wrap items-center gap-2">
-                  <span className={`text-xs font-mono font-bold px-3 py-1 rounded-xl border flex items-center gap-1.5 ${activeSlaInfo.badgeColor}`}>
-                    <Clock size={12} />
-                    <span>SLA: {activeSlaInfo.label}</span>
-                  </span>
-                  <div className="bg-amber-400/10 border border-amber-400/30 px-3 py-1 rounded-xl font-mono text-xs text-amber-400 font-bold">
-                    {calculatedDistanceKm.toFixed(1)} KM
-                  </div>
+                  <h3 className="text-base font-bold font-mono text-white">
+                    Carga Pesada / Volumen Especial (&gt; 10 kg)
+                  </h3>
+                  <p className="text-xs text-slate-300 font-mono">
+                    La cotización automática se inhabilitó por requerir vehículo de apoyo o logística especial.
+                  </p>
                 </div>
               </div>
 
-              {/* Pricing Dual Column */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pb-6 border-b border-white/10">
-                {/* Occasional Total Price */}
-                <div>
+              <div className="bg-red-500/10 border border-red-500/30 rounded-xl p-4 text-xs font-mono text-red-300 leading-relaxed">
+                <p className="font-bold mb-1">⚠️ ATENCIÓN OPERATIVA:</p>
+                Para paquetes de más de 10 kg o con volumen superior al morral estándar, coordinamos la ruta directamente vía WhatsApp para asignarte la tarifa óptima.
+              </div>
+
+              {/* HABEAS DATA CHECKBOX FOR HEAVY LOAD */}
+              <div className="flex items-start gap-2.5 bg-[#0A0A0C] border border-white/10 rounded-xl p-3.5">
+                <input
+                  type="checkbox"
+                  id="habeasDataHeavy"
+                  checked={acceptedHabeasData}
+                  onChange={(e) => setAcceptedHabeasData(e.target.checked)}
+                  className="w-4 h-4 mt-0.5 accent-red-500 cursor-pointer shrink-0"
+                />
+                <label htmlFor="habeasDataHeavy" className="text-xs font-mono text-slate-300 leading-snug cursor-pointer">
+                  Acepto los <span className="text-red-400 font-bold underline">Términos de Servicio</span> y la <span className="text-red-400 font-bold underline">Política de Tratamiento de Datos Personales</span> (Ley 1581 de Colombia).
+                </label>
+              </div>
+
+              <a
+                href={acceptedHabeasData ? generateWhatsAppUrl() : "#"}
+                onClick={(e) => {
+                  if (!acceptedHabeasData) {
+                    e.preventDefault();
+                    alert("⚠️ Debes aceptar la Política de Tratamiento de Datos Personales (Ley 1581) para cotizar.");
+                  }
+                }}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={`w-full font-mono font-extrabold text-sm sm:text-base uppercase tracking-wider py-4 px-6 rounded-xl flex items-center justify-center gap-3 transition-all shadow-xl min-h-[56px] ${
+                  acceptedHabeasData
+                    ? "bg-gradient-to-r from-red-500 via-red-600 to-red-500 hover:from-red-400 hover:to-red-500 text-white shadow-red-500/25 hover:shadow-red-500/40 cursor-pointer"
+                    : "bg-slate-800 text-slate-500 cursor-not-allowed border border-slate-700"
+                }`}
+              >
+                <Send size={20} />
+                <span>COTIZAR CARGA PESADA POR WHATSAPP ➔</span>
+              </a>
+            </motion.div>
+          ) : isCalculated ? (
+            /* STANDARD CALCULATION CARD */
+            <motion.div
+              key="calculated-card"
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 15 }}
+              transition={{ duration: 0.3 }}
+              className="space-y-6"
+            >
+              {/* SUMMARY CARD */}
+              <div className="bg-[#12141A] border border-amber-400/40 rounded-2xl p-6 sm:p-8 shadow-2xl relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-amber-400/10 rounded-full blur-2xl pointer-events-none" />
+
+                {/* Route Heading */}
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-5 border-b border-white/10 mb-6 gap-3">
+                  <div>
+                    <span className="text-[11px] font-mono text-slate-400 uppercase tracking-widest block mb-1">
+                      Enrutamiento Seleccionado
+                    </span>
+                    <div className="text-sm sm:text-base font-bold text-white flex items-center gap-2 flex-wrap">
+                      <span className="text-amber-400">{originObj?.name}</span>
+                      <span className="text-slate-500">➔</span>
+                      <span className="text-amber-400">{destObj?.name}</span>
+                      {extraStops.length > 0 && (
+                        <span className="text-xs font-mono text-emerald-400 bg-emerald-500/10 border border-emerald-500/30 px-2 py-0.5 rounded">
+                          (+{extraStops.length} paradas)
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className={`text-xs font-mono font-bold px-3 py-1 rounded-xl border flex items-center gap-1.5 ${activeSlaInfo.badgeColor}`}>
+                      <Clock size={12} />
+                      <span>SLA: {activeSlaInfo.label}</span>
+                    </span>
+                    <div className="bg-amber-400/10 border border-amber-400/30 px-3 py-1 rounded-xl font-mono text-xs text-amber-400 font-bold flex items-center gap-1.5">
+                      {isCalculatingDistance ? (
+                        <>
+                          <Loader2 size={12} className="animate-spin text-amber-400" />
+                          <span>Calculando ruta real...</span>
+                        </>
+                      ) : (
+                        <>
+                          <Navigation size={12} className="text-amber-400" />
+                          <span>{calculatedDistanceKm.toFixed(1)} KM (Ruta vehicular real)</span>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Pricing Display */}
+                <div className="pb-6 border-b border-white/10">
                   <span className="text-[11px] font-mono text-slate-400 uppercase tracking-wider block mb-1">
-                    Precio Ocasional Total
+                    Precio Estimado de Carrera (Tarifa Individual Expresa)
                   </span>
                   <div className="flex items-baseline gap-2 mb-2">
                     <span className="text-4xl sm:text-5xl font-mono font-extrabold text-amber-400 tracking-tight">
@@ -1437,20 +1832,25 @@ ${extraStopsText ? `📦 *3. PARADAS INTERMEDIAS:\n${extraStopsText}\n\n` : ""}�
                     <span className="text-xs font-mono text-slate-400 font-bold">COP</span>
                   </div>
 
-                  {/* Technical Breakdown Subtext */}
-                  <div className="text-[11px] font-mono text-slate-400 space-y-0.5">
+                  {/* Breakdown Subtext */}
+                  <div className="text-[11px] font-mono text-slate-400 space-y-1">
                     <p className="flex items-center gap-1 text-slate-300">
                       <CheckCircle2 size={12} className="text-amber-400 shrink-0" />
-                      <span>Base 2km ($12.000) + {extraKmCount > 0 ? `${extraKmCount.toFixed(1)}km trayecto urbano ($${formatCOP(extraKmCost)})` : "sin recargo distancia"}</span>
+                      <span>
+                        Base 3km ($8.000) + {extraKmCount > 0 ? `${extraKmCount.toFixed(1)}km extra ($${formatCOP(extraKmCost)})` : "sin recargo distancia"}
+                      </span>
                     </p>
+                    {weightSurcharge > 0 && (
+                      <p className="text-amber-300">• Recargo Sobrepeso / Volumen: +$3.000 COP</p>
+                    )}
+                    {sundayHolidaySurcharge > 0 && (
+                      <p className="text-amber-300">• Servicio Domingo / Festivo: +$3.000 COP</p>
+                    )}
                     {extraStopsCost > 0 && (
                       <p className="text-slate-400">• Paradas adicionales: +{formatCOP(extraStopsCost)} COP</p>
                     )}
                     {codCharge > 0 && (
                       <p className="text-emerald-400">• Recaudo COD: +$3.000 COP</p>
-                    )}
-                    {boxCapacityCharge > 0 && (
-                      <p className="text-slate-400">• Capacidad Caja Especial: +$2.000 COP</p>
                     )}
                     {expressCharge > 0 && (
                       <p className="text-amber-300">• Servicio Express Flash (+40%): +{formatCOP(expressCharge)} COP</p>
@@ -1458,146 +1858,215 @@ ${extraStopsText ? `📦 *3. PARADAS INTERMEDIAS:\n${extraStopsText}\n\n` : ""}�
                   </div>
                 </div>
 
-                {/* Inescapable Conversion Hook: Corporate Pack Anchor Effect */}
-                <div className="border-t md:border-t-0 md:border-l border-white/10 pt-5 md:pt-0 md:pl-8 flex flex-col justify-between">
-                  <div>
-                    <span className="text-[11px] font-mono text-emerald-400 uppercase tracking-wider font-bold block mb-1 flex items-center gap-1.5">
-                      <Sparkles size={14} />
-                      <span>💡 Tarifa con Pack Corporate</span>
+                {/* COMPARATIVA CON EL PLAN MÁS VENDIDO B2B (PACK EXPRESS 6K) */}
+                <div className="my-5 p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-amber-500/15 via-amber-400/5 to-amber-500/15 border border-amber-400/40 space-y-3 font-mono shadow-xl">
+                  <div className="flex items-center justify-between flex-wrap gap-2 border-b border-amber-400/20 pb-2.5">
+                    <span className="text-xs font-mono uppercase tracking-wider text-amber-400 font-extrabold flex items-center gap-1.5">
+                      <Sparkles size={15} className="text-amber-400 animate-pulse" />
+                      <span>Comparativa con Plan Más Vendido (Pack Express 6K)</span>
                     </span>
-                    <div className="flex items-baseline gap-2 mb-2">
-                      <span className="text-4xl sm:text-5xl font-mono font-extrabold text-emerald-400 tracking-tight">
-                        {formatCOP(corporateEquivalentCost)}
+                    <span className="text-[10px] font-mono font-bold bg-amber-400/20 text-amber-300 border border-amber-400/40 px-2.5 py-0.5 rounded-full">
+                      MÁS VENDIDO B2B
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                    {/* Tarifa Individual Expresa */}
+                    <div className="bg-[#0A0A0C]/90 border border-white/15 p-3.5 rounded-xl">
+                      <span className="text-[10px] text-slate-400 uppercase font-mono block mb-1 font-bold">
+                        Tarifa Individual (Sin Plan)
                       </span>
-                      <span className="text-xs font-mono text-slate-400 font-bold">COP</span>
+                      <div className="text-xl sm:text-2xl font-bold font-mono text-slate-200">
+                        {formatCOP(totalCost)} <span className="text-xs text-slate-400 font-normal">COP</span>
+                      </div>
+                      <span className="text-[10px] text-slate-500 font-mono block mt-1">
+                        Pago por trayecto individual
+                      </span>
+                    </div>
+
+                    {/* Tarifa con Pack Express 6K */}
+                    <div className="bg-amber-400/10 border border-amber-400/60 p-3.5 rounded-xl relative overflow-hidden">
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-[10px] text-amber-400 uppercase font-mono font-extrabold">
+                          Con Pack Express 6K
+                        </span>
+                        <span className="text-[9px] bg-amber-400 text-black px-1.5 py-0.5 rounded font-extrabold">
+                          $10.000 / envío
+                        </span>
+                      </div>
+                      <div className="text-xl sm:text-2xl font-bold font-mono text-amber-300">
+                        {formatCOP(pack6kTotalCost)} <span className="text-xs text-amber-400/80 font-normal">COP</span>
+                      </div>
+                      <div className="text-[11px] font-mono font-bold mt-1.5">
+                        {savingsWithPack6k > 0 ? (
+                          <span className="text-emerald-400 flex items-center gap-1">
+                            <CheckCircle2 size={13} className="shrink-0" />
+                            <span>¡Ahorras {formatCOP(savingsWithPack6k)} COP por envío! ({formatCOP(savingsWithPack6k * 10)} en 10 envíos)</span>
+                          </span>
+                        ) : (
+                          <span className="text-amber-300">
+                            Cubre hasta 6,0 KM por envío ($100.000 COP x 10 cupones)
+                          </span>
+                        )}
+                      </div>
                     </div>
                   </div>
 
-                  <div className="bg-emerald-500/10 border border-emerald-500/30 rounded-xl p-3 text-xs font-mono text-emerald-300">
-                    <p className="font-bold mb-1">
-                      $12.400 COP / envío (Incluye hasta 11 KM)
-                    </p>
-                    {corporateExtraKm > 0 && (
-                      <p className="text-[10px] text-amber-300 mb-1">
-                        • Excedente de ruta ({corporateExtraKm.toFixed(1)} km &gt; 11 km): +{formatCOP(corporateExtraKmCost)} COP
-                      </p>
-                    )}
-                    {b2bSavings > 0 ? (
-                      <p className="text-[11px] text-emerald-400 font-extrabold">
-                        🔥 Ahorras {formatCOP(b2bSavings)} COP en este despacho comprando el Pack B2B.
-                      </p>
-                    ) : (
-                      <p className="text-[11px] text-slate-300">
-                        Congela tarifas sin sobrecostos por clima o tráfico.
-                      </p>
-                    )}
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between pt-1.5 text-[11px] font-mono text-slate-300 gap-2">
+                    <span>
+                      💡 El Pack Express 6K incluye 10 envíos prepagados para rutas de hasta 6 km con asignación prioritaria.
+                    </span>
+                    <a
+                      href="#packs"
+                      className="text-amber-400 hover:text-amber-300 font-extrabold underline shrink-0 flex items-center gap-1"
+                    >
+                      <span>Adquirir Pack ➔</span>
+                    </a>
+                  </div>
+                </div>
+
+                {/* CTA Link to Packs */}
+                <div className="pt-2 flex flex-col sm:flex-row sm:items-center justify-between text-xs font-mono text-slate-400 gap-2">
+                  <span>¿Realizas más de 10 envíos al mes en tu empresa?</span>
+                  <a href="#packs" className="text-amber-400 hover:text-amber-300 font-bold underline flex items-center gap-1">
+                    <span>Ver Todos los Packs B2B ➔</span>
+                  </a>
+                </div>
+              </div>
+
+              {/* SEMÁFORO DE VERIFICACIÓN DE HOJA DE RUTA */}
+              <div className="bg-[#0A0A0C] border border-white/10 rounded-xl p-4 space-y-3 font-mono">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className={`w-3 h-3 rounded-full animate-pulse ${
+                      verificationStatus.isFullyVerified ? "bg-emerald-500" : "bg-amber-400"
+                    }`} />
+                    <span className="text-xs font-bold text-white uppercase tracking-wider">
+                      Estado de Hoja de Ruta para Piloto:
+                    </span>
+                  </div>
+                  <span className={`text-[11px] font-bold px-2.5 py-0.5 rounded border ${
+                    verificationStatus.isFullyVerified
+                      ? "bg-emerald-500/20 text-emerald-400 border-emerald-500/40"
+                      : "bg-amber-400/20 text-amber-300 border-amber-400/40"
+                  }`}>
+                    {verificationStatus.score}% COMPLETADA
+                  </span>
+                </div>
+
+                {/* Checklist items */}
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-[10px]">
+                  <div className={`p-2 rounded border flex items-center gap-1.5 ${
+                    verificationStatus.hasOriginArea ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-300" : "bg-white/5 border-white/10 text-slate-400"
+                  }`}>
+                    <CheckCircle2 size={12} className={verificationStatus.hasOriginArea ? "text-emerald-400" : "text-slate-500"} />
+                    <span>📍 Barrio Recogida</span>
+                  </div>
+                  <div className={`p-2 rounded border flex items-center gap-1.5 ${
+                    verificationStatus.hasOriginStreet ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-300" : "bg-white/5 border-white/10 text-slate-400"
+                  }`}>
+                    <CheckCircle2 size={12} className={verificationStatus.hasOriginStreet ? "text-emerald-400" : "text-slate-500"} />
+                    <span>🏠 Dirección N° Origen</span>
+                  </div>
+                  <div className={`p-2 rounded border flex items-center gap-1.5 ${
+                    verificationStatus.hasDestArea ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-300" : "bg-white/5 border-white/10 text-slate-400"
+                  }`}>
+                    <CheckCircle2 size={12} className={verificationStatus.hasDestArea ? "text-emerald-400" : "text-slate-500"} />
+                    <span>🏁 Barrio Entrega</span>
+                  </div>
+                  <div className={`p-2 rounded border flex items-center gap-1.5 ${
+                    verificationStatus.hasDestStreet ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-300" : "bg-white/5 border-white/10 text-slate-400"
+                  }`}>
+                    <CheckCircle2 size={12} className={verificationStatus.hasDestStreet ? "text-emerald-400" : "text-slate-500"} />
+                    <span>🏠 Dirección N° Destino</span>
                   </div>
                 </div>
               </div>
 
-              {/* CTA Link to Packs */}
-              <div className="pt-4 flex flex-col sm:flex-row sm:items-center justify-between text-xs font-mono text-slate-400 gap-2">
-                <span>¿Realizas más de 10 envíos al mes en tu empresa?</span>
-                <a href="#packs" className="text-amber-400 hover:text-amber-300 font-bold underline flex items-center gap-1">
-                  <span>Ver Planes Prepagados Corporate ➔</span>
+              {/* HABEAS DATA CHECKBOX (LEY 1581 COLOMBIA) */}
+              <div className="flex items-start gap-2.5 bg-[#0A0A0C] border border-white/10 rounded-xl p-3.5">
+                <input
+                  type="checkbox"
+                  id="habeasDataStandard"
+                  checked={acceptedHabeasData}
+                  onChange={(e) => setAcceptedHabeasData(e.target.checked)}
+                  className="w-4 h-4 mt-0.5 accent-amber-400 cursor-pointer shrink-0"
+                />
+                <label htmlFor="habeasDataStandard" className="text-xs font-mono text-slate-300 leading-snug cursor-pointer">
+                  Acepto los <span className="text-amber-400 font-bold underline">Términos de Servicio</span> y la <span className="text-amber-400 font-bold underline">Política de Tratamiento de Datos Personales</span> (Ley 1581 de Colombia).
+                </label>
+              </div>
+
+              {/* OPERATIONAL WHATSAPP DISPATCH BUTTON */}
+              <div className="space-y-2">
+                <a
+                  href={acceptedHabeasData ? generateWhatsAppUrl() : "#"}
+                  onClick={(e) => {
+                    if (!acceptedHabeasData) {
+                      e.preventDefault();
+                      alert("⚠️ Debes aceptar la Política de Tratamiento de Datos Personales (Ley 1581) para cotizar y despachar.");
+                    }
+                  }}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={`w-full font-mono font-extrabold text-sm sm:text-base uppercase tracking-wider py-4 px-6 rounded-xl flex items-center justify-center gap-3 transition-all shadow-xl min-h-[56px] ${
+                    acceptedHabeasData
+                      ? "bg-gradient-to-r from-amber-400 via-amber-500 to-amber-400 hover:from-amber-300 hover:to-amber-400 text-black shadow-amber-400/25 hover:shadow-amber-400/40 hover:-translate-y-0.5 cursor-pointer"
+                      : "bg-slate-800 text-slate-500 cursor-not-allowed border border-slate-700"
+                  }`}
+                >
+                  <Send size={20} />
+                  <span>DESPACHAR Y ENVIAR GUÍA A WHATSAPP ➔</span>
                 </a>
+
+                {activeTab === "quick" && (
+                  <p className="text-center text-[11px] text-slate-400 font-mono">
+                    💡 Tip: Si deseas agregar nombres de quien entrega/recibe o indicaciones especiales, usa la pestaña <button type="button" onClick={() => setActiveTab("full")} className="text-amber-400 underline font-bold">"2. Guía Operativa Completa"</button>.
+                  </p>
+                )}
               </div>
+            </motion.div>
+          ) : (
+            <div className="bg-[#12141A]/60 border border-white/10 border-dashed rounded-2xl p-8 text-center text-slate-400 text-xs font-mono space-y-2">
+              <Navigation size={24} className="mx-auto text-amber-400/60 mb-2 animate-pulse" />
+              <span className="font-bold text-white block">
+                👈 Selecciona el Barrio de Recogida y Barrio de Entrega
+              </span>
+              <p className="text-slate-400 max-w-md mx-auto">
+                El sistema asignará la distancia en kilómetros y calculará automáticamente la tarifa exacta de $8.000 COP base.
+              </p>
             </div>
+          )}
+        </AnimatePresence>
+      </div>
 
-            {/* SEMÁFORO DE VERIFICACIÓN DE HOJA DE RUTA PARA EL DOMICILIARIO / PILOTO */}
-            <div className="bg-[#0A0A0C] border border-white/10 rounded-xl p-4 space-y-3 font-mono">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <span className={`w-3 h-3 rounded-full animate-pulse ${
-                    verificationStatus.isFullyVerified ? "bg-emerald-500" : "bg-amber-400"
-                  }`} />
-                  <span className="text-xs font-bold text-white uppercase tracking-wider">
-                    Estado de Hoja de Ruta para Piloto:
-                  </span>
-                </div>
-                <span className={`text-[11px] font-bold px-2.5 py-0.5 rounded border ${
-                  verificationStatus.isFullyVerified
-                    ? "bg-emerald-500/20 text-emerald-400 border-emerald-500/40"
-                    : "bg-amber-400/20 text-amber-300 border-amber-400/40"
-                }`}>
-                  {verificationStatus.score}% COMPLETADA
-                </span>
-              </div>
-
-              {/* Checklist items */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-[10px]">
-                <div className={`p-2 rounded border flex items-center gap-1.5 ${
-                  verificationStatus.hasOriginArea ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-300" : "bg-white/5 border-white/10 text-slate-400"
-                }`}>
-                  <CheckCircle2 size={12} className={verificationStatus.hasOriginArea ? "text-emerald-400" : "text-slate-500"} />
-                  <span>📍 Barrio Recogida</span>
-                </div>
-                <div className={`p-2 rounded border flex items-center gap-1.5 ${
-                  verificationStatus.hasOriginStreet ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-300" : "bg-white/5 border-white/10 text-slate-400"
-                }`}>
-                  <CheckCircle2 size={12} className={verificationStatus.hasOriginStreet ? "text-emerald-400" : "text-slate-500"} />
-                  <span>🏠 Dirección N° Origen</span>
-                </div>
-                <div className={`p-2 rounded border flex items-center gap-1.5 ${
-                  verificationStatus.hasDestArea ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-300" : "bg-white/5 border-white/10 text-slate-400"
-                }`}>
-                  <CheckCircle2 size={12} className={verificationStatus.hasDestArea ? "text-emerald-400" : "text-slate-500"} />
-                  <span>🏁 Barrio Entrega</span>
-                </div>
-                <div className={`p-2 rounded border flex items-center gap-1.5 ${
-                  verificationStatus.hasDestStreet ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-300" : "bg-white/5 border-white/10 text-slate-400"
-                }`}>
-                  <CheckCircle2 size={12} className={verificationStatus.hasDestStreet ? "text-emerald-400" : "text-slate-500"} />
-                  <span>🏠 Dirección N° Destino</span>
-                </div>
-              </div>
-            </div>
-
-            {/* OPERATIONAL WHATSAPP DISPATCH BUTTON */}
-            <div className="space-y-2">
-              <a
-                href={generateWhatsAppUrl()}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-full bg-gradient-to-r from-amber-400 via-amber-500 to-amber-400 hover:from-amber-300 hover:to-amber-400 text-black font-mono font-extrabold text-sm sm:text-base uppercase tracking-wider py-4 px-6 rounded-xl flex items-center justify-center gap-3 transition-all shadow-xl shadow-amber-400/25 hover:shadow-amber-400/40 hover:-translate-y-0.5 cursor-pointer min-h-[56px]"
-              >
-                <Send size={20} />
-                <span>DESPACHAR Y ENVIAR GUÍA A WHATSAPP ➔</span>
-              </a>
-
-              {activeTab === "quick" && (
-                <p className="text-center text-[11px] text-slate-400 font-mono">
-                  💡 Tip: Si deseas agregar nombres de quien entrega/recibe o direcciones con nomenclatura, haz clic en la pestaña <button type="button" onClick={() => setActiveTab("full")} className="text-amber-400 underline font-bold">"2. Guía Operativa Completa"</button>.
-                </p>
-              )}
-            </div>
-          </motion.div>
-        ) : (
-          <div className="bg-[#12141A]/60 border border-white/10 border-dashed rounded-2xl p-8 text-center text-slate-400 text-xs font-mono space-y-2">
-            <Navigation size={24} className="mx-auto text-amber-400/60 mb-2 animate-pulse" />
-            <span className="font-bold text-white block">
-              👈 Selecciona el Barrio de Recogida y Barrio de Entrega
-            </span>
-            <p className="text-slate-400 max-w-md mx-auto">
-              El sistema asignará la distancia en kilómetros y calculará automáticamente la tarifa exacta con estándar de agencia B2B.
-            </p>
+      {/* OPERATIONAL GUARANTEES & LEGAL CLAUSE FOOTER STRIP */}
+      <div className="bg-black/90 border border-white/10 rounded-xl p-4 mt-8 space-y-3 font-mono text-xs text-slate-300">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+          <div className="flex items-center gap-2.5">
+            <Clock size={16} className="text-amber-400 shrink-0" />
+            <span><strong>Tiempo:</strong> Recogida en &lt;45 min con piloto en Boxer Negra.</span>
           </div>
-        )}
-      </AnimatePresence>
+          <div className="flex items-center gap-2.5">
+            <ShieldCheck size={16} className="text-amber-400 shrink-0" />
+            <span><strong>Garantía:</strong> Trazabilidad 100% y seguro de mercancía incluido.</span>
+          </div>
+          <div className="flex items-center gap-2.5">
+            <Banknote size={16} className="text-amber-400 shrink-0" />
+            <span><strong>COD:</strong> Recaudo en destino con transferencia inmediata a tu cuenta.</span>
+          </div>
+        </div>
 
-      {/* OPERATIONAL GUARANTEES FOOTER STRIP */}
-      <div className="bg-black/90 border border-white/10 rounded-xl p-4 mt-8 grid grid-cols-1 md:grid-cols-3 gap-3 text-xs font-mono text-slate-300">
-        <div className="flex items-center gap-2.5">
-          <Clock size={16} className="text-amber-400 shrink-0" />
-          <span><strong>Tiempo:</strong> Recogida en &lt;45 min con piloto en Boxer Negra.</span>
-        </div>
-        <div className="flex items-center gap-2.5">
-          <ShieldCheck size={16} className="text-amber-400 shrink-0" />
-          <span><strong>Garantía:</strong> Trazabilidad 100% y seguro de mercancía incluido.</span>
-        </div>
-        <div className="flex items-center gap-2.5">
-          <Banknote size={16} className="text-amber-400 shrink-0" />
-          <span><strong>COD:</strong> Recaudo en destino con transferencia inmediata a tu cuenta.</span>
+        {/* LEGAL LIABILITY CLAUSES */}
+        <div className="pt-3 border-t border-white/10 text-[11px] text-slate-400 space-y-1">
+          <p className="flex items-center gap-1.5">
+            <ShieldAlert size={14} className="text-amber-400 shrink-0" />
+            <span>Incluye 10 min de espera sin costo en punto de entrega (Adicional: $3.000 / 15 min).</span>
+          </p>
+          <p className="flex items-center gap-1.5">
+            <ShieldAlert size={14} className="text-amber-400 shrink-0" />
+            <span>ÆON Fleet no transporta sustancias ilícitas ni material peligroso.</span>
+          </p>
         </div>
       </div>
     </div>

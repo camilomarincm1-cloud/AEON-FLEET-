@@ -66,7 +66,7 @@ Le comparto en la imagen adjunta los beneficios exclusivos que tendrían al alia
   };
 
   const handleOpenWhatsApp = () => {
-    const link = `https://api.whatsapp.com/send?text=${encodeURIComponent(getClientMessageText())}`;
+    const link = `https://api.whatsapp.com/send?phone=573012964584&text=${encodeURIComponent(getClientMessageText())}`;
     window.open(link, "_blank");
   };
 
