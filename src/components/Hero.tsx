@@ -1,6 +1,6 @@
 import { useRef, useEffect } from "react";
 import { motion, useScroll, useTransform } from "motion/react";
-import { ShieldCheck, Eye, Lock, ArrowDown } from "lucide-react";
+import { Zap, Eye, Lock, ArrowDown } from "lucide-react";
 import { ScrambleIn } from "./ScrambleEffects";
 
 interface HeroProps {
@@ -124,8 +124,8 @@ export default function Hero({ setCurrentView }: HeroProps = {}) {
             {/* Operational Guarantees Bar */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 w-full bg-[#080B10]/90 border border-cyan-500/30 p-4 rounded-2xl backdrop-blur-md shadow-[0_0_30px_rgba(0,0,0,0.8)]">
               <div className="flex items-center gap-2 text-[11px] sm:text-xs font-mono text-emerald-400 font-bold">
-                <ShieldCheck size={16} className="shrink-0" />
-                <span>Seguro de Carga $1.000.000 COP</span>
+                <Zap size={16} className="shrink-0" />
+                <span>Asignación Inmediata &lt; 5 Min</span>
               </div>
               <div className="flex items-center gap-2 text-[11px] sm:text-xs font-mono text-cyan-300 font-bold">
                 <Eye size={16} className="shrink-0" />

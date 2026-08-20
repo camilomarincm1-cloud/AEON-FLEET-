@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import {
   MessageSquare,
   ShieldCheck,
@@ -10,11 +10,20 @@ import {
   ArrowLeft,
   Printer,
   FileText,
-  AlertTriangle
+  AlertTriangle,
+  Navigation,
+  ExternalLink,
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { ROUTES } from "../data";
 import AILocationValidator from "./AILocationValidator";
+import MatrizMetropolitanaAutocomplete from "./MatrizMetropolitanaAutocomplete";
+import {
+  computeGeodesicDistanceKm,
+  NEIGHBORHOOD_COORDS,
+  DEFAULT_MEDELLIN_CENTER,
+  findBestNeighborhoodMatch,
+} from "./MultiStopCalculator";
 
 interface OrderData {
   serviceId: string;
@@ -215,6 +224,39 @@ export default function OrderSheet() {
     setErrors([]);
   };
 
+  const routeMetrics = useMemo(() => {
+    const oFull = `${form.origBarrio} ${getOrigAddress()}`.trim();
+    const dFull = `${form.destBarrio} ${getDestAddress()}`.trim();
+
+    const oMatch = findBestNeighborhoodMatch(oFull) || findBestNeighborhoodMatch(form.origBarrio);
+    const dMatch = findBestNeighborhoodMatch(dFull) || findBestNeighborhoodMatch(form.destBarrio);
+
+    const oCoords = (oMatch && NEIGHBORHOOD_COORDS[oMatch.id]) 
+      ? NEIGHBORHOOD_COORDS[oMatch.id] 
+      : DEFAULT_MEDELLIN_CENTER;
+
+    const dCoords = (dMatch && NEIGHBORHOOD_COORDS[dMatch.id]) 
+      ? NEIGHBORHOOD_COORDS[dMatch.id] 
+      : DEFAULT_MEDELLIN_CENTER;
+
+    const distKm = computeGeodesicDistanceKm(oCoords, dCoords);
+    const extraKm = distKm > 3.0 ? Number((distKm - 3.0).toFixed(2)) : 0;
+    const extraKmCost = Math.round(extraKm * 1500);
+    const nominalRate = 8000 + extraKmCost;
+
+    const gpsDeepLink = `https://www.google.com/maps/dir/?api=1&origin=${oCoords.lat.toFixed(5)},${oCoords.lng.toFixed(5)}&destination=${dCoords.lat.toFixed(5)},${dCoords.lng.toFixed(5)}&travelmode=driving`;
+
+    return {
+      oCoords,
+      dCoords,
+      distKm,
+      extraKm,
+      extraKmCost,
+      nominalRate,
+      gpsDeepLink,
+    };
+  }, [form.origBarrio, form.origVia, form.origN1, form.origN2, form.origN3, form.destBarrio, form.destVia, form.destN1, form.destN2, form.destN3]);
+
   const buildWALink = () => {
     const selectedSvc = ROUTES.find((r) => r.id === form.serviceId);
     const svcText = selectedSvc ? `${selectedSvc.code} • ${selectedSvc.name} (${selectedSvc.basePriceText})` : form.serviceId;
@@ -231,19 +273,26 @@ ${svcText}
 
 📍 ORIGEN (RECOGIDA)
 • Dirección: ${oAddr}
-• Barrio: ${form.origBarrio}
-• Zona: Zona ${form.origZone}
+• Barrio / Sector: ${form.origBarrio}
+• Coordenadas GPS: ${routeMetrics.oCoords.lat.toFixed(5)}, ${routeMetrics.oCoords.lng.toFixed(5)}
 • Contacto: ${form.origNombre} · ${form.origTel}
 • Hora Recogida: ${form.origHora || "Sin preferencia"}
 • Indicaciones: ${form.origRef || "Ninguna"}
 
 🏠 DESTINO (ENTREGA)
 • Dirección: ${dAddr}
-• Barrio: ${form.destBarrio}
-• Zona: Zona ${form.destZone}
+• Barrio / Sector: ${form.destBarrio}
+• Coordenadas GPS: ${routeMetrics.dCoords.lat.toFixed(5)}, ${routeMetrics.dCoords.lng.toFixed(5)}
 • Destinatario: ${form.destNombre} · ${form.destTel}
 • Recepción: ${form.destPresencia}
 • Indicaciones: ${form.destRef || "Ninguna"}
+
+🗺️ LIQUIDACIÓN DE RUTA GPS (TARIFAS VIGENTES)
+• Distancia Geodésica: ${routeMetrics.distKm.toFixed(1)} KM
+• Tarifa Base Fija (hasta 3.0 KM): $8.000 COP
+• Excedente Distancia: ${routeMetrics.extraKm > 0 ? `+$${routeMetrics.extraKmCost.toLocaleString("es-CO")} COP (${routeMetrics.extraKm.toFixed(1)} km extra × $1.500)` : "$0 COP"}
+• Tarifa Nominal Estimada: $${routeMetrics.nominalRate.toLocaleString("es-CO")} COP
+• Enlace GPS Oficial: ${routeMetrics.gpsDeepLink}
 
 📋 DETALLES DEL PAQUETE
 • Contenido: ${form.pkgDesc}
@@ -470,6 +519,21 @@ Enviado desde la Hoja de Pedido Digital`;
                       );
                     })}
                   </div>
+                </div>
+
+                {/* Búsqueda Directa de Barrio con Matriz Metropolitana */}
+                <div className="mb-6 p-4 bg-ink-light border border-cyan-500/30 rounded-sm">
+                  <MatrizMetropolitanaAutocomplete
+                    label="Búsqueda Inteligente de Barrio u Origen (Matriz Metropolitana)"
+                    onSelectLocation={(selected) => {
+                      handleFieldChange("origBarrio", selected);
+                    }}
+                  />
+                  {form.origBarrio && (
+                    <div className="mt-2 text-xs font-mono text-cyan-400">
+                      ✓ Barrio de origen asignado: <strong>{form.origBarrio}</strong>
+                    </div>
+                  )}
                 </div>
 
                 {/* Barrio pills scrollbar */}
@@ -726,6 +790,21 @@ Enviado desde la Hoja de Pedido Digital`;
                       );
                     })}
                   </div>
+                </div>
+
+                {/* Búsqueda Directa de Barrio Destino con Matriz Metropolitana */}
+                <div className="mb-6 p-4 bg-ink-light border border-cyan-500/30 rounded-sm">
+                  <MatrizMetropolitanaAutocomplete
+                    label="Búsqueda Inteligente de Barrio u Destino (Matriz Metropolitana)"
+                    onSelectLocation={(selected) => {
+                      handleFieldChange("destBarrio", selected);
+                    }}
+                  />
+                  {form.destBarrio && (
+                    <div className="mt-2 text-xs font-mono text-cyan-400">
+                      ✓ Barrio de destino asignado: <strong>{form.destBarrio}</strong>
+                    </div>
+                  )}
                 </div>
 
                 {/* Barrio pills scrollbar */}
@@ -1110,7 +1189,7 @@ Enviado desde la Hoja de Pedido Digital`;
                   {/* Package info card */}
                   <div className="bg-ink-light border border-gold/10 p-4 rounded-sm flex flex-col gap-1">
                     <span className="font-mono text-[9px] text-gold uppercase tracking-widest block mb-1">
-                      Paquete & Seguro
+                      Detalle del Paquete
                     </span>
                     <span className="text-sm font-sans font-semibold text-parchment truncate">
                       {form.pkgDesc}
@@ -1144,6 +1223,48 @@ Enviado desde la Hoja de Pedido Digital`;
                     <span className="text-xs text-slate-dim truncate">
                       {getDestAddress()} ({form.destBarrio})
                     </span>
+                  </div>
+
+                  {/* Route & Tariff Real-time Breakdown Card */}
+                  <div className="md:col-span-2 bg-[#090D16] border-2 border-amber-400/30 p-4 rounded-xl space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className="font-mono text-[10px] text-amber-400 uppercase font-extrabold tracking-wider flex items-center gap-1.5">
+                        <Navigation size={13} className="text-amber-400" />
+                        Liquidación Geodésica GPS & Tarifas Vigentes
+                      </span>
+                      <a
+                        href={routeMetrics.gpsDeepLink}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-[10px] font-mono text-cyan-400 hover:underline flex items-center gap-1"
+                      >
+                        <span>Ver en Google Maps</span>
+                        <ExternalLink size={10} />
+                      </a>
+                    </div>
+
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs font-mono">
+                      <div className="bg-black/50 p-2 rounded border border-white/5">
+                        <span className="text-[10px] text-slate-400 block">Distancia:</span>
+                        <span className="text-white font-bold">{routeMetrics.distKm.toFixed(1)} KM</span>
+                      </div>
+                      <div className="bg-black/50 p-2 rounded border border-white/5">
+                        <span className="text-[10px] text-slate-400 block">Tarifa Base (≤3.0 km):</span>
+                        <span className="text-white font-bold">$8.000 COP</span>
+                      </div>
+                      <div className="bg-black/50 p-2 rounded border border-white/5">
+                        <span className="text-[10px] text-slate-400 block">Km Extra ($1.500/km):</span>
+                        <span className="text-amber-300 font-bold">
+                          {routeMetrics.extraKm > 0 ? `+$${routeMetrics.extraKmCost.toLocaleString("es-CO")}` : "$0"}
+                        </span>
+                      </div>
+                      <div className="bg-black/50 p-2 rounded border border-amber-400/20">
+                        <span className="text-[10px] text-amber-400 block font-bold">Total Estimado:</span>
+                        <span className="text-amber-300 font-black text-sm">
+                          ${routeMetrics.nominalRate.toLocaleString("es-CO")} COP
+                        </span>
+                      </div>
+                    </div>
                   </div>
                 </div>
 

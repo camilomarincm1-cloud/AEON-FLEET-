@@ -270,10 +270,10 @@ export default function PricingRoutes() {
                       <td className="py-4 px-5 text-gold-bright font-bold bg-gold/5 group-hover/row:bg-gold/10 border-x border-gold/20 transition-colors">✓ Ventana horaria pactada</td>
                     </tr>
                     <tr className="hover:bg-gold/5 transition-colors group/row">
-                      <td className="py-4 px-5 font-semibold text-parchment">Siniestros y Pérdidas</td>
-                      <td className="py-4 px-5 text-rust/80 font-medium">✗ Sin póliza (pérdida total)</td>
+                      <td className="py-4 px-5 font-semibold text-parchment">Trazabilidad y Custodia</td>
+                      <td className="py-4 px-5 text-rust/80 font-medium">✗ Sin seguimiento directo</td>
                       <td className="py-4 px-5">~ Soporte automatizado</td>
-                      <td className="py-4 px-5 text-gold-bright font-bold bg-gold/5 group-hover/row:bg-gold/10 border-x border-gold/20 transition-colors">✓ Garantía total del 100%</td>
+                      <td className="py-4 px-5 text-gold-bright font-bold bg-gold/5 group-hover/row:bg-gold/10 border-x border-gold/20 transition-colors">✓ Custodia 100% directa</td>
                     </tr>
                     <tr className="hover:bg-gold/5 transition-colors group/row">
                       <td className="py-4 px-5 font-semibold text-parchment border-b-transparent">Perfil del Mensajero</td>

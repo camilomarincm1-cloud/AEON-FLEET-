@@ -20,8 +20,8 @@ const FAQS: FaqItem[] = [
   },
   {
     id: "garantia-perdida",
-    question: "¿Tienen garantía por pérdida o hurto de mercancía?",
-    answer: "Sí. En el caso excepcional de pérdida o hurto comprobado bajo nuestra custodia, ÆON Fleet responde hasta por un valor máximo declarado de $50.000 COP en envíos estándar. Si transportas mercancía de mayor valor, es obligatorio declararlo antes de solicitar el servicio y adquirir el seguro adicional (cubrimiento proporcional). Sin declaración previa, el tope de indemnización es innegociable.",
+    question: "¿Tienen protocolo de garantía por pérdida o hurto de mercancía?",
+    answer: "Sí. En el caso excepcional de pérdida comprobada bajo nuestra custodia directa, ÆON Fleet responde hasta por un valor máximo declarado de $50.000 COP en envíos estándar. Si transportas mercancía de mayor valor, es obligatorio declararlo formalmente antes del despacho para activar el protocolo de custodia especial.",
     icon: ShieldAlert,
     isPolicy: true,
   },

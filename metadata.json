@@ -1,7 +1,9 @@
 {
   "name": "ÆON Fleet — Logística Premium",
   "description": "Sitio web premium optimizado y responsivo para el servicio de logística y última milla en el Valle de Aburrá.",
-  "requestFramePermissions": [],
+  "requestFramePermissions": [
+    "geolocation"
+  ],
   "majorCapabilities": [
     "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
   ]

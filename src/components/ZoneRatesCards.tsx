@@ -1,7 +1,12 @@
 import { MapPin, ArrowRight, ShieldCheck, Zap, Navigation, Calculator } from "lucide-react";
 import { motion } from "motion/react";
 
-export default function ZoneRatesCards() {
+interface ZoneRatesCardsProps {
+  onOpenCalculator?: () => void;
+  setCurrentView?: (view: 'home' | 'policies' | 'testimonials' | 'calculator' | 'methodology' | 'order') => void;
+}
+
+export default function ZoneRatesCards({ onOpenCalculator, setCurrentView }: ZoneRatesCardsProps = {}) {
   const rateCards = [
     {
       id: "base-trayecto",
@@ -136,15 +141,31 @@ export default function ZoneRatesCards() {
             </div>
           </div>
 
-          <a
-            href="https://api.whatsapp.com/send?phone=573012964584&text=Hola%20%C3%86ON%20Fleet%2C%20quiero%20cotizar%20un%20env%C3%ADo%20por%20kilometraje%20para%20mi%20empresa."
-            target="_blank"
-            rel="noopener noreferrer"
-            className="shrink-0 bg-amber-400 hover:bg-amber-300 text-black font-extrabold text-xs uppercase tracking-wider px-6 py-3.5 rounded-xl flex items-center gap-2 transition-all cursor-pointer min-h-[48px]"
+          <button
+            type="button"
+            onClick={() => {
+              if (onOpenCalculator) {
+                onOpenCalculator();
+              } else if (setCurrentView) {
+                setCurrentView('home');
+                setTimeout(() => {
+                  const el = document.getElementById('despachar');
+                  if (el) el.scrollIntoView({ behavior: 'smooth' });
+                }, 100);
+              } else {
+                const el = document.getElementById('despachar');
+                if (el) {
+                  el.scrollIntoView({ behavior: 'smooth' });
+                } else {
+                  window.location.hash = 'despachar';
+                }
+              }
+            }}
+            className="shrink-0 bg-amber-400 hover:bg-amber-300 text-black font-extrabold text-xs uppercase tracking-wider px-6 py-3.5 rounded-xl flex items-center gap-2 transition-all cursor-pointer min-h-[48px] shadow-lg shadow-amber-400/20"
           >
             <span>COTIZAR MI RUTA AHORA</span>
             <ArrowRight size={14} />
-          </a>
+          </button>
         </div>
       </div>
     </section>
